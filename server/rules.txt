@@ -1,0 +1,76 @@
+/* Creature 
+  - summoning sickness
+  - either 1 basic attack or ability per turn 
+    - 5 FYT = 2 attacks, 10 FYT = 3
+    - 5 NRG = 2 abilities, 10 NRG = 3
+    - 5 SWG = can do both basic attacks and abilities in same turn
+  - basic attack damage = 100 * STR
+*/
+
+/* Items 
+  - Cost 2 funding points regardless of rarity
+  - Must be attached to a creature. Moved to another when creature destroyed. If no creatures, discarded
+  - 1-3 SWG = 1 item, 3-6 = 2 items, 6-9 SWG = 3 items, 10 SWG = no limit
+*/
+
+/* Tactics 
+  - Cost 2 funding points regardless of rarity
+  - One time use
+  - Enter play when funded, but don't take effect until owner says. Then discarded
+*/
+
+/* Agendas 
+  - Cost 5 funding points
+  - Only 1 per player
+  - Dismantled by any single attack, but can't be attacked if owner has creatures in play
+    - unless: attacked by creature with 8+ INT 
+    - or attacked by figurehead, revolutionary, bad actor, double agent
+  - Lose 1 narrative point when dismantled
+  - If you have already funded and played an agenda, can be swapped out with another once
+*/
+
+/* Plot twists 
+  - all effects from tactics and agendas are halted/postponed for 1 full turn. applies to both players
+  - discarded after use
+*/
+
+/* Locations
+  - cost no funding
+  - persistent
+  - only 1 location may be played at a time
+  - discarded when a player plays a new location
+*/
+
+/* Challenges
+  - cost no funding
+  - apply to both players
+  - once completed, other player has 1 turn to complete. else it is discarded
+*/
+
+/* Buffs & Debuffs
+  - 1 funding point
+  - similar to items, played on creatures
+  - can't be removed once applied
+*/
+
+/* Groups
+  - 3 funding points
+  - benefits all friendly creatures
+  - killed by single attack of any type
+  - cannot be attacked while enemy creatures of the SAME FACTION are in play
+  - only 1 ability per turn. that ability cannot be used again
+*/
+
+/* Skills
+  - 1 funding point
+  - similar to items, played on creatures
+*/
+
+/* Incantations
+  - 0 funding points
+  - MUST be played immediately upon player seeing them
+*/
+
+/* Infomashun
+  - 0 funding points
+*/

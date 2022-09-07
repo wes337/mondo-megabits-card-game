@@ -1,0 +1,28 @@
+// @mixin fan($count, $angle) {
+//   $offset: $angle / 2;
+//   @for $i from 1 through $count {
+//     $increment: $angle / ($count + 1);
+//     .card:nth-child(#{$i}) {
+//       transform: translate(-50%, -75%) rotate(-$offset + $increment * $i);
+
+//       &:hover {
+//         outline: 3px solid red;
+//       }
+//     }
+//   }
+// }
+
+.hand {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+
+  // @include fan(5, 100deg);
+
+  .card {
+    position: absolute;
+    // cursor: grab;
+    transition: transform 0.2s ease-in-out;
+    transform-origin: center 120%;
+  }
+}
