@@ -7,8 +7,8 @@ class Challenge extends Card {
   cost: number;
   subType: ChallengeSubType;
 
-  constructor(id, name, faction, rarity, subType) {
-    super(id, name, faction, rarity);
+  constructor(id, name, bodyText, faction, rarity, subType) {
+    super(id, name, bodyText, faction, rarity);
     this.type = "Challenge";
     this.subType = subType;
     this.cost = 0;

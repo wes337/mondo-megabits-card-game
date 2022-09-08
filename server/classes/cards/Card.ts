@@ -41,17 +41,19 @@ class Card {
   uuid: string;
   id: number;
   name: string;
+  bodyText: string;
   faction: string;
   rarity: number;
   tapped: boolean;
 
-  constructor(id, name, faction, rarity) {
+  constructor(id, name, bodyText, faction, rarity) {
     this.uuid = generateKey();
     this.id = id;
     this.name = name;
     this.faction = faction;
     this.rarity = rarity;
     this.tapped = false;
+    this.bodyText = bodyText;
   }
 }
 

@@ -41,6 +41,7 @@ export const createRandomDeck = (deckSize = 40): Deck => {
           new Creature(
             card.id,
             card.name,
+            card.bodyText,
             card.faction,
             card.rarity,
             card.subtype,
@@ -54,6 +55,7 @@ export const createRandomDeck = (deckSize = 40): Deck => {
           new Challenge(
             card.id,
             card.name,
+            card.bodyText,
             card.faction,
             card.rarity,
             card.subtype
@@ -63,13 +65,27 @@ export const createRandomDeck = (deckSize = 40): Deck => {
       }
       case "Buff": {
         deck.push(
-          new Buff(card.id, card.name, card.faction, card.rarity, card.subtype)
+          new Buff(
+            card.id,
+            card.name,
+            card.bodyText,
+            card.faction,
+            card.rarity,
+            card.subtype
+          )
         );
         break;
       }
       case "Group": {
         deck.push(
-          new Group(card.id, card.name, card.faction, card.rarity, card.subtype)
+          new Group(
+            card.id,
+            card.name,
+            card.bodyText,
+            card.faction,
+            card.rarity,
+            card.subtype
+          )
         );
         break;
       }
@@ -78,6 +94,7 @@ export const createRandomDeck = (deckSize = 40): Deck => {
           new Information(
             card.id,
             card.name,
+            card.bodyText,
             card.faction,
             card.rarity,
             card.subtype
@@ -87,7 +104,14 @@ export const createRandomDeck = (deckSize = 40): Deck => {
       }
       case "Item": {
         deck.push(
-          new Item(card.id, card.name, card.faction, card.rarity, card.subtype)
+          new Item(
+            card.id,
+            card.name,
+            card.bodyText,
+            card.faction,
+            card.rarity,
+            card.subtype
+          )
         );
         break;
       }
@@ -96,6 +120,7 @@ export const createRandomDeck = (deckSize = 40): Deck => {
           new Location(
             card.id,
             card.name,
+            card.bodyText,
             card.faction,
             card.rarity,
             card.subtype
@@ -108,6 +133,7 @@ export const createRandomDeck = (deckSize = 40): Deck => {
           new PlotTwist(
             card.id,
             card.name,
+            card.bodyText,
             card.faction,
             card.rarity,
             card.subtype
@@ -117,7 +143,14 @@ export const createRandomDeck = (deckSize = 40): Deck => {
       }
       case "Skill": {
         deck.push(
-          new Skill(card.id, card.name, card.faction, card.rarity, card.subtype)
+          new Skill(
+            card.id,
+            card.name,
+            card.bodyText,
+            card.faction,
+            card.rarity,
+            card.subtype
+          )
         );
         break;
       }
@@ -126,6 +159,7 @@ export const createRandomDeck = (deckSize = 40): Deck => {
           new Tactic(
             card.id,
             card.name,
+            card.bodyText,
             card.faction,
             card.rarity,
             card.subtype

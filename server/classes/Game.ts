@@ -2,22 +2,22 @@ import PuppetMaster from "./PupperMaster";
 import { Challenge, Location } from "./cards";
 
 class Game {
-  uuid: string;
+  id: string;
   turn: {
     number: number;
-    player?: PuppetMaster;
+    player?: string;
   };
   puppetMasters: PuppetMaster[];
   location?: Location;
   challenges: Challenge[];
 
-  constructor(uuid, puppetMasters) {
-    this.uuid = uuid;
+  constructor(id, puppetMasters) {
+    this.id = id;
     this.puppetMasters = puppetMasters;
     this.location = undefined;
     this.challenges = [];
     this.turn = {
-      number: -1,
+      number: 0,
       player: undefined,
     };
   }
@@ -26,8 +26,14 @@ class Game {
     const number = this.turn.number + 1;
     this.turn = {
       number,
-      player: this.puppetMasters[number % 2 === 0 ? 0 : 1],
+      player: (
+        this.puppetMasters[number % 2 === 0 ? 0 : 1] || this.puppetMasters[0]
+      ).id,
     };
+  }
+
+  allowMove(puppetMasterId) {
+    return this.turn.player === puppetMasterId;
   }
 
   start() {

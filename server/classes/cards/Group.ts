@@ -9,8 +9,8 @@ class Group extends Card {
   cost: number;
   attachedTo?: Creature;
 
-  constructor(id, name, faction, rarity, subType) {
-    super(id, name, faction, rarity);
+  constructor(id, name, bodyText, faction, rarity, subType) {
+    super(id, name, bodyText, faction, rarity);
     this.type = "Group";
     this.subType = subType;
     this.cost = 3;

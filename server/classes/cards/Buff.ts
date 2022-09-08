@@ -13,8 +13,8 @@ class Buff extends Card {
   subType: BuffSubType;
   attachedTo?: Creature;
 
-  constructor(id, name, faction, rarity, subType) {
-    super(id, name, faction, rarity);
+  constructor(id, name, bodyText, faction, rarity, subType) {
+    super(id, name, bodyText, faction, rarity);
     this.type = "Buff";
     this.subType = subType;
     this.cost = 2;

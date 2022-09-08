@@ -25,8 +25,8 @@ class Creature extends Card {
     PSI: number;
   };
 
-  constructor(id, name, faction, rarity, subType, stats) {
-    super(id, name, faction, rarity);
+  constructor(id, name, bodyText, faction, rarity, subType, stats) {
+    super(id, name, bodyText, faction, rarity);
     this.type = "Creature";
     this.subType = subType;
     this.stats = stats;
