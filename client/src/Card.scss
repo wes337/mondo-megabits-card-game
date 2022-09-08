@@ -1,0 +1,34 @@
+.card {
+  display: flex;
+  height: min-content;
+
+  background-color: plum;
+
+  img {
+    max-width: 120px;
+    height: auto;
+    margin: auto;
+    object-fit: contain;
+  }
+
+  &.focus {
+    z-index: 0;
+
+    img {
+      outline: 4px solid red;
+    }
+  }
+
+  &:hover {
+    img {
+      outline: 2px solid yellow;
+    }
+  }
+
+  &:active {
+    outline: 4px solid green;
+    img {
+      outline: 4px solid green;
+    }
+  }
+}

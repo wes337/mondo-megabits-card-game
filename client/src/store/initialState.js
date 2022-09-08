@@ -3,12 +3,14 @@ export default {
     id: "",
     name: "",
   },
-  puppetMasterHandle: "",
   connected: false,
-  uuid: null,
   lobby: [],
   room: null,
   rooms: {},
   chatMessages: [],
-  hand: [],
+  game: undefined,
+  focus: {
+    current: null,
+    hover: null,
+  },
 };

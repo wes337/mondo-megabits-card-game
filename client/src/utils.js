@@ -1779,3 +1779,9 @@ export const getRandomCards = (number) => {
 
   return shuffledCards.slice(0, number);
 };
+
+export const hyphenToCamelCase = (hyphenString) => {
+  return hyphenString.replace(/-([a-z])/g, (g) => {
+    return g[1].toUpperCase();
+  });
+};

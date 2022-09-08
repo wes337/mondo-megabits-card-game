@@ -1,0 +1,57 @@
+.zone {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  min-height: 25px;
+  gap: 1rem;
+  align-items: center;
+
+  &:after {
+    top: 0;
+    right: 0;
+    background-color: lightblue;
+    position: absolute;
+  }
+
+  &.the-think-tank {
+    background-color: purple;
+
+    &:after {
+      content: "The Think Tank";
+    }
+
+    &.opponent {
+      background-color: olive;
+    }
+  }
+
+  &.buffer-zone {
+    background-color: peru;
+
+    &:after {
+      content: "Buffer Zone";
+    }
+
+    &.opponent {
+      background-color: palevioletred;
+    }
+  }
+
+  &.battle-zone {
+    background-color: lightcoral;
+
+    &:after {
+      content: "Battle Zone";
+    }
+
+    &.opponent {
+      background-color: aquamarine;
+    }
+  }
+
+  &.drag-over {
+    outline: 4px solid red;
+    flex-shrink: 0;
+    z-index: 1;
+  }
+}

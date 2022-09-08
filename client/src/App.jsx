@@ -4,21 +4,43 @@ import Connect from "./Connect";
 import Lobby from "./Lobby";
 import "./App.scss";
 import Room from "./Room";
+import GameBoard from "./GameBoard";
 
 function App() {
   const { state } = useStore();
+
+  screen.orientation.lock("landscape");
 
   const userIsInLobbyOrRoom = createMemo(
     () =>
       !!state.room || !!state.lobby.find((user) => user.id === state.user.id)
   );
 
+  const renderMain = () => {
+    if (state.game) {
+      return <GameBoard />;
+    }
+    if (state.room) {
+      return <Room />;
+    }
+
+    return <Lobby />;
+  };
+
   return (
-    <Show when={userIsInLobbyOrRoom()} fallback={<Connect />}>
-      <Show when={state.room} fallback={<Lobby />}>
-        <Room />
-      </Show>
-    </Show>
+    <>
+      <div class="app">
+        <Show when={userIsInLobbyOrRoom()} fallback={<Connect />}>
+          {renderMain()}
+          {/* <Show when={state.room} fallback={<Lobby />}>
+          <Room />
+        </Show> */}
+        </Show>
+      </div>
+      <div class="orientation">
+        <h3>Please turn your device sideways to landscape mode.</h3>
+      </div>
+    </>
   );
 }
 

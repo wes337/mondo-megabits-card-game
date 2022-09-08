@@ -1,28 +1,31 @@
-// @mixin fan($count, $angle) {
-//   $offset: $angle / 2;
-//   @for $i from 1 through $count {
-//     $increment: $angle / ($count + 1);
-//     .card:nth-child(#{$i}) {
-//       transform: translate(-50%, -75%) rotate(-$offset + $increment * $i);
-
-//       &:hover {
-//         outline: 3px solid red;
-//       }
-//     }
-//   }
-// }
-
 .hand {
-  position: fixed;
-  bottom: 0;
-  left: 50%;
+  display: flex;
+  width: 100%;
 
-  // @include fan(5, 100deg);
+  .hand-card {
+    max-width: 168px;
 
-  .card {
-    position: absolute;
-    // cursor: grab;
-    transition: transform 0.2s ease-in-out;
-    transform-origin: center 120%;
+    .card {
+      height: 100%;
+      width: 100%;
+
+      transition: transform 0.2s ease-in-out;
+      cursor: grab;
+
+      img {
+        width: 100%;
+        max-width: 100%;
+        height: 100%;
+      }
+
+      &:hover {
+        transform: scale(1.5) translateY(-5%);
+        z-index: 0;
+
+        img {
+          outline: 2px solid yellow;
+        }
+      }
+    }
   }
 }

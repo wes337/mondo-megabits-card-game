@@ -1,0 +1,22 @@
+.chat {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  background: wheat;
+  overflow: auto;
+
+  .messages {
+    flex-grow: 1;
+    background: darkblue;
+
+    overflow: auto;
+  }
+
+  form {
+    display: flex;
+
+    input {
+      flex-grow: 1;
+    }
+  }
+}

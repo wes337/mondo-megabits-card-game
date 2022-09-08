@@ -21,6 +21,8 @@ function useStore() {
   ws.onmessage = (event) => {
     const { type, params } = JSON.parse(event.data);
 
+    console.log("=== EVENT ===", type, params);
+
     switch (type) {
       case "connected": {
         setState({
@@ -34,6 +36,7 @@ function useStore() {
       case "lobby": {
         setState({
           lobby: params.users,
+          room: null,
           rooms: params.otherRooms || [],
         });
         break;
@@ -50,21 +53,48 @@ function useStore() {
         break;
       }
       case "leave": {
-        const { uuid, rooms } = params;
-        if (uuid === state.uuid) {
-          setState({
-            room: null,
-            rooms,
-          });
-        }
+        const { userId } = params;
+        setState({
+          room:
+            userId === state.user.id
+              ? null
+              : {
+                  ...state.room,
+                  users: state.room.users.filter((user) => user.id !== userId),
+                },
+        });
         break;
       }
       case "chat": {
-        if (params.chatMessage.user !== state.uuid) {
+        if (params.chatMessage.user.id !== state.user.id) {
           setState((state) => ({
             chatMessages: [...state.chatMessages, params.chatMessage],
           }));
         }
+        break;
+      }
+      case "ready": {
+        const { userId, status } = params;
+        setState((state) => ({
+          room: {
+            ...state.room,
+            users: state.room.users.map((user) => {
+              if (user.id !== userId) {
+                return user;
+              }
+              return {
+                ...user,
+                status,
+              };
+            }),
+          },
+        }));
+        break;
+      }
+      case "game": {
+        const { game } = params;
+        console.log(game);
+        setState({ game });
         break;
       }
       case "draw": {

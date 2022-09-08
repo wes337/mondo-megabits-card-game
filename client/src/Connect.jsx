@@ -4,22 +4,20 @@ import "./Connect.scss";
 
 function Connect() {
   const { sendMessage, setState } = useStore();
-  const [puppetMasterHandle, setPuppetMasterHandle] = createSignal("");
+  const [userName, setUserName] = createSignal("");
 
   const connect = (event) => {
     event.preventDefault();
 
-    const userName = puppetMasterHandle();
-
     sendMessage({
       type: "lobby",
       params: {
-        userName,
+        userName: userName(),
       },
     });
 
     setState((state) => ({
-      user: { ...state.user, name: userName },
+      user: { ...state.user, name: userName() },
     }));
   };
 
@@ -29,8 +27,8 @@ function Connect() {
         <label>Puppet Master Handle</label>
         <input
           type="text"
-          onChange={(event) => setPuppetMasterHandle(event.target.value)}
-          value={puppetMasterHandle()}
+          onChange={(event) => setUserName(event.target.value)}
+          value={userName()}
         />
         <button type="submit">Connect</button>
       </form>
