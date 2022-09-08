@@ -7,16 +7,16 @@
 
   .rooms {
     grid-column: 1 / 2;
-    border: 2px solid blue;
+    outline: 2px solid blue;
   }
 
   .users {
     grid-column: 2 / 2;
-    border: 2px solid red;
+    outline: 2px solid red;
   }
 
   .footer {
-    border: 2px solid yellow;
+    outline: 2px solid yellow;
     grid-column: 1 / span 2;
     grid-row: 2;
 

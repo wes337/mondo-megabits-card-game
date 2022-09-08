@@ -1,39 +1,23 @@
-import { createSignal, createMemo, For } from "solid-js";
+import { createMemo, For } from "solid-js";
 import useStore from "./store";
-import "./Hand.scss";
 import Card from "./Card";
+import "./Hand.scss";
 
-const CARD_OFFSET = 40;
+function Hand({ opponent }) {
+  const { state } = useStore();
 
-function Hand() {
-  const { state, setState } = useStore();
-
-  const me = createMemo(() =>
-    state.game.puppetMasters.find(({ id }) => id === state.user.id)
+  const myHand = createMemo(
+    () => state.game.puppetMasters.find(({ id }) => id === state.user.id)?.hand
   );
 
-  const handOffset = createMemo(
-    () => (me().hand.length - 1) * (CARD_OFFSET / 2)
+  const opponentHand = createMemo(
+    () => state.game.puppetMasters.find(({ id }) => id !== state.user.id)?.hand
   );
 
   return (
-    <div
-      class="hand"
-      style={`transform: translate(${me().hand.length}%, 25%);`}
-    >
-      <For each={me().hand}>
-        {(card, index) => {
-          const cardOffset = Math.floor(index() * CARD_OFFSET);
-
-          return (
-            <div
-              class="hand-card"
-              style={`transform: translateX(-${cardOffset}px);`}
-            >
-              <Card card={card} />
-            </div>
-          );
-        }}
+    <div class={`hand${opponent ? " opponent" : ""}`}>
+      <For each={opponent ? opponentHand() : myHand()}>
+        {(card) => <Card card={card} faceDown={opponent} />}
       </For>
     </div>
   );

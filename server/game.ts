@@ -1,8 +1,10 @@
-import { messageOne, messageRoom } from "./rooms";
+import { getUsersInRoom, messageOne, messageRoom } from "./rooms";
 import { createRandomDeck, getRandomCards } from "./cards";
 import Game from "./classes/Game";
 import PuppetMaster from "./classes/PupperMaster";
 import { generateKey } from "./utils";
+import { User } from "./types";
+import { MAX_CLIENTS } from "./constants";
 
 export const draw = (room, uuid, params) => {
   const cards = getRandomCards(params.number);
@@ -71,7 +73,43 @@ export const play = (userId, rooms, games, params) => {
   // Send message to room with updated game
 };
 
+export const leaveGame = (userId, rooms, games) => {
+  const roomCode = Object.keys(rooms).find((roomCode) => {
+    return rooms[roomCode].users[userId];
+  });
+
+  if (!roomCode) {
+    return;
+  }
+
+  const gameCode = Object.keys(games).find((gameCode) => {
+    return games[gameCode].puppetMasters.find(({ id }) => id === userId);
+  });
+
+  if (!gameCode) {
+    return;
+  }
+
+  delete games[gameCode];
+
+  const room = rooms[roomCode];
+
+  Object.entries(room.users).forEach(([_, user]) => {
+    (user as User).status = "waiting";
+  });
+
+  console.log(room);
+
+  room.status = Object.keys(room.users).length >= MAX_CLIENTS ? "full" : "open";
+  const users = getUsersInRoom(room);
+  messageRoom(room, {
+    type: "leave-game",
+    params: { roomCode, users },
+  });
+};
+
 export const startGame = (room, games, game) => {
+  room.status = "in-progress";
   game.start();
 
   game.puppetMasters.forEach((puppetMaster) => {
@@ -79,6 +117,7 @@ export const startGame = (room, games, game) => {
     const randomDeck = createRandomDeck(40);
     puppetMaster.setDeck(randomDeck);
     // Draw 12 cards on first turn
+    puppetMaster.shuffleDeck();
     puppetMaster.drawCards(12);
   });
 

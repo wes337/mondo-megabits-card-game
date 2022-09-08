@@ -1,29 +1,33 @@
 .hand {
   display: flex;
-  width: 100%;
 
-  .hand-card {
-    max-width: 168px;
+  .card {
+    cursor: pointer;
+    transition: transform 0.2s;
 
-    .card {
-      height: 100%;
-      width: 100%;
-
-      transition: transform 0.2s ease-in-out;
-      cursor: grab;
+    &:hover {
+      transform: translateY(-75px);
 
       img {
-        width: 100%;
-        max-width: 100%;
-        height: 100%;
+        outline: 2px solid red;
+      }
+    }
+  }
+
+  &.opponent {
+    .card {
+      transform: translateY(-80%);
+      z-index: 1;
+
+      img {
+        transform: rotate(180deg);
       }
 
       &:hover {
-        transform: scale(1.5) translateY(-5%);
-        z-index: 0;
+        transform: translateY(-75%);
 
         img {
-          outline: 2px solid yellow;
+          outline: 2px solid red;
         }
       }
     }

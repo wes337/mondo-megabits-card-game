@@ -12,7 +12,7 @@ export interface Room {
     [userId: string]: User;
   };
   game?: Game;
-  status: "open" | "full";
+  status: "open" | "full" | "in-progress";
 }
 
 export interface Rooms {

@@ -1,13 +1,17 @@
-import CardBack from "./assets/card-back-upside.png";
+import CardBack from "./assets/card-back.png";
 import useStore from "./store";
 import { getCardImageById } from "./utils";
 import "./Card.scss";
 
-function Card({ card, ...props }) {
+function Card({ card, opponent, ...props }) {
   const { state, setState, sendMessage } = useStore();
   const faceDown = props.faceDown || card.faceDown;
 
   const playCard = (destination = "battle-zone") => {
+    if (opponent) {
+      return;
+    }
+
     sendMessage({
       type: "play",
       params: {
@@ -20,6 +24,9 @@ function Card({ card, ...props }) {
   };
 
   const onDragStart = (event) => {
+    if (opponent) {
+      return;
+    }
     event.dataTransfer.setData("text", card.uuid);
   };
 

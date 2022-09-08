@@ -34,6 +34,7 @@ function Zone({ name, opponent }) {
   const onDrop = (event) => {
     event.preventDefault();
 
+    event.target.classList.remove("drag-over");
     const cardUuid = event.dataTransfer.getData("text");
 
     sendMessage({

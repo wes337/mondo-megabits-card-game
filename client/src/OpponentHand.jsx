@@ -3,6 +3,7 @@ import useStore from "./store";
 import { getCardImageById } from "./utils";
 import CardBack from "./assets/card-back-upside.png";
 import "./OpponentHand.scss";
+import Card from "./Card";
 
 function OpponentHand() {
   const { state, setState } = useStore();
@@ -15,11 +16,7 @@ function OpponentHand() {
     <div class="opponent-hand">
       <For each={opponent().hand}>
         {(card) => {
-          return (
-            <div class="card">
-              <img src={CardBack} />
-            </div>
-          );
+          return <Card card={card} faceDown />;
         }}
       </For>
     </div>

@@ -65,6 +65,17 @@ function useStore() {
         });
         break;
       }
+      case "leave-game": {
+        const { roomCode, users } = params;
+        setState((state) => ({
+          game: null,
+          room: {
+            code: roomCode,
+            users,
+          },
+        }));
+        break;
+      }
       case "chat": {
         if (params.chatMessage.user.id !== state.user.id) {
           setState((state) => ({

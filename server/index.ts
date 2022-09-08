@@ -9,7 +9,7 @@ import {
   leaveRoom,
   cleanUp,
 } from "./rooms";
-import { play, start, endTurn } from "./game";
+import { play, start, endTurn, leaveGame } from "./game";
 import { Rooms } from "./types";
 
 const port = 8080;
@@ -65,6 +65,9 @@ webSocketServer.on("connection", (socket) => {
         case "end-turn":
           endTurn(userId, rooms, games, params);
           break;
+        case "leave-game":
+          leaveGame(userId, rooms, games);
+          break;
         default:
           console.warn(`Type: ${type} unknown`);
           break;
@@ -76,6 +79,6 @@ webSocketServer.on("connection", (socket) => {
 
   socket.on("close", () => {
     console.log("=== DISCONNECTED ===", userId);
-    cleanUp(userId, lobby, rooms);
+    cleanUp(userId, lobby, rooms, games);
   });
 });

@@ -34,6 +34,12 @@ class PuppetMaster {
     this.deck = cards;
   }
 
+  shuffleDeck() {
+    this.deck.sort(() => {
+      return 0.5 - Math.random();
+    });
+  }
+
   drawCards(amount: number) {
     const cards = this.deck.splice(0, amount);
     this.hand.push(...cards);

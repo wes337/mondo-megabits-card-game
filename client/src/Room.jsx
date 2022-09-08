@@ -1,4 +1,4 @@
-import { createSignal, createMemo, For } from "solid-js";
+import { createSignal, createMemo, For, Show } from "solid-js";
 import useStore from "./store";
 import Chat from "./Chat";
 import "./Room.scss";
@@ -12,6 +12,12 @@ function Room() {
     () => !state.room.users.find((user) => user.status !== "ready")
   );
 
+  const iAmReady = createMemo(() =>
+    state.room.users.find(
+      (user) => user.id === state.user.id && user.status === "ready"
+    )
+  );
+
   const leaveRoom = () => {
     sendMessage({ type: "leave" });
   };
@@ -21,16 +27,19 @@ function Room() {
   };
 
   const toggleReady = () => {
-    const _ready = !ready();
+    const nextValue = !iAmReady();
 
-    setReady(_ready);
+    const status = nextValue ? "ready" : "waiting";
+
     sendMessage({
       type: "ready",
       params: {
         roomCode: state.room.code,
-        status: _ready ? "ready" : "waiting",
+        status,
       },
     });
+
+    setReady(nextValue);
   };
 
   return (
@@ -56,7 +65,12 @@ function Room() {
         </ul>
       </div>
       <div class="footer">
-        <button onClick={toggleReady}>{ready() ? "Unready" : "Ready"}</button>
+        <Show
+          when={iAmReady()}
+          fallback={<button onClick={toggleReady}>Ready</button>}
+        >
+          <button onClick={toggleReady}>Unready</button>
+        </Show>
         <button onClick={leaveRoom}>Leave</button>
       </div>
     </div>

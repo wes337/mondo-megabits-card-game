@@ -6,6 +6,7 @@ import Hand from "./Hand";
 import CardFocus from "./CardFocus";
 import "./GameBoard.scss";
 import Zone from "./Zone";
+import CardPile from "./CardPile";
 
 function GameBoard() {
   let mainRef;
@@ -15,11 +16,31 @@ function GameBoard() {
     state.game.puppetMasters.find(({ id }) => id === state.user.id)
   );
 
+  const getPuppetMasterName = (puppetMasterId) =>
+    state.room.users.find((user) => user.id === puppetMasterId)?.name;
+
   const soloPlay = createMemo(() => state.game.puppetMasters.length === 1);
+  const opponent = createMemo(() =>
+    soloPlay()
+      ? null
+      : state.game.puppetMasters.find(({ id }) => id !== state.user.id)
+  );
+
+  const opponentName = createMemo(() => {
+    if (soloPlay()) {
+      return null;
+    }
+    const opponentId = opponent()?.id;
+    return getPuppetMasterName(opponentId);
+  });
 
   const isMyTurn = createMemo(() => state.game.turn.player === state.user.id);
 
-  const leaveGame = () => {};
+  const leaveGame = () => {
+    sendMessage({
+      type: "leave-game",
+    });
+  };
 
   const endTurn = () => {
     sendMessage({
@@ -30,9 +51,6 @@ function GameBoard() {
       },
     });
   };
-
-  const getPuppetMasterName = (puppetMasterId) =>
-    state.room.users.find((user) => user.id === puppetMasterId)?.name;
 
   const onClick = (event) => {
     // Remove focus from cards when clicking
@@ -53,10 +71,62 @@ function GameBoard() {
 
   return (
     <div class="game-board" onClick={onClick}>
-      <div class="header">header</div>
-      <Show when={!soloPlay()}>
-        <OpponentHand />
-      </Show>
+      <div class="header">
+        <Show when={!soloPlay()}>
+          <Hand opponent />
+        </Show>
+      </div>
+
+      <div class="left-side-bar">
+        <Show when={!soloPlay()}>
+          <div class="opponent">
+            <div class="name">{opponentName()}</div>
+            <div class="stats">
+              <div class="stat">
+                <div class="stat-label">Narrative</div>
+                <div class="stat-number">{opponent().narrative}</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label">Funding</div>
+                <div class="stat-number">{opponent().funding}</div>
+              </div>
+            </div>
+            <div class="card-piles">
+              <CardPile label="Deck" amount={opponent().deck.length} />
+              <CardPile
+                label="Discard"
+                amount={opponent().discardPile.length}
+              />
+            </div>
+          </div>
+        </Show>
+        <div class="turn">
+          <div class="turn-label">
+            {isMyTurn() ? "Your Turn" : `${opponentName()}'s Turn`}
+          </div>
+          <div class="turn-number">{state.game.turn.number}</div>
+          <Show when={isMyTurn()}>
+            <button onClick={endTurn}>End My Turn</button>
+          </Show>
+        </div>
+        <div class="me">
+          <div class="card-piles">
+            <CardPile label="Deck" amount={me().deck.length} />
+            <CardPile label="Discard" amount={me().discardPile.length} />
+          </div>
+          <div class="stats">
+            <div class="stat">
+              <div class="stat-label">Narrative</div>
+              <div class="stat-number">{me().narrative}</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Funding</div>
+              <div class="stat-number">{me().funding}</div>
+            </div>
+          </div>
+          <div class="name">{state.user.name}</div>
+        </div>
+      </div>
       <div ref={mainRef} class={`main${soloPlay() ? " solo-play" : ""}`}>
         <Show when={!soloPlay()}>
           <Zone name="the-think-tank" opponent />
@@ -67,7 +137,11 @@ function GameBoard() {
         <Zone name="buffer-zone" />
         <Zone name="the-think-tank" />
       </div>
-      <div class={`game-side-bar${chatExpanded() ? " chat-expanded" : ""}`}>
+      <div class={`right-side-bar${chatExpanded() ? " chat-expanded" : ""}`}>
+        <div class="options">
+          <button onClick={leaveGame}>Leave</button>
+        </div>
+        <CardFocus />
         <div class="game-chat">
           <button
             class="expand-button"
@@ -85,41 +159,9 @@ function GameBoard() {
             </ul>
           </Show>
         </div>
-        <CardFocus />
       </div>
       <div class="footer">
-        <div class="footer-left">
-          <div class="name">{state.user.name}</div>
-          <div class="stats">
-            <div class="stat">
-              <div class="stat-label">Narrative</div>
-              <div class="stat-number">{me().narrative}</div>
-            </div>
-            <div class="stat">
-              <div class="stat-label">Funding</div>
-              <div class="stat-number">{me().funding}</div>
-            </div>
-          </div>
-        </div>
-        <div class="footer-center">
-          <Hand />
-        </div>
-        <div class="footer-right">
-          <div class="turn">
-            <div class="turn-label">
-              {isMyTurn()
-                ? "Your Turn"
-                : `${getPuppetMasterName(state.game.turn.player)}'s Turn`}
-            </div>
-            <div class="turn-number">{state.game.turn.number}</div>
-          </div>
-          <div class="options">
-            <Show when={isMyTurn()}>
-              <button onClick={endTurn}>End My Turn</button>
-            </Show>
-            <button onClick={leaveGame}>Leave</button>
-          </div>
-        </div>
+        <Hand />
       </div>
     </div>
   );

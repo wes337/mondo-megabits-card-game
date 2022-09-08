@@ -187,7 +187,7 @@ export const leaveRoom = (userId, lobby, rooms) => {
   joinLobby(socket, userId, rooms, lobby, { userName: name });
 };
 
-export const cleanUp = (userId, lobby, rooms) => {
+export const cleanUp = (userId, lobby, rooms, games) => {
   const roomCode = Object.keys(rooms).find((roomCode) => {
     return rooms[roomCode].users[userId];
   });
@@ -209,4 +209,12 @@ export const cleanUp = (userId, lobby, rooms) => {
   }
 
   leaveLobby(userId, lobby, rooms);
+
+  const gameCode = Object.keys(games).find((gameCode) => {
+    return games[gameCode].puppetMasters.find(({ id }) => id === userId);
+  });
+
+  if (gameCode) {
+    delete games[gameCode];
+  }
 };

@@ -9,7 +9,7 @@ import GameBoard from "./GameBoard";
 function App() {
   const { state } = useStore();
 
-  screen.orientation.lock("landscape");
+  screen?.orientation?.lock?.("landscape");
 
   const userIsInLobbyOrRoom = createMemo(
     () =>
