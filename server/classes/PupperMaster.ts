@@ -64,7 +64,7 @@ class PuppetMaster {
       return;
     }
 
-    card.tapped = true;
+    card.tapped = !card.tapped;
   }
 
   move(cardUuid: string, destination: CardLocation) {

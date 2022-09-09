@@ -130,7 +130,7 @@ function Card({ card, opponent, location }) {
     let className = "card";
 
     if (opponent) {
-      className += "opponent";
+      className += " opponent";
     }
 
     if (state.focus.current?.uuid === card.uuid) {
