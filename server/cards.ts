@@ -41,6 +41,8 @@ export const createRandomDeck = (deckSize = 40): Deck => {
           new Creature(
             card.id,
             card.name,
+            false,
+            false,
             card.bodyText,
             card.faction,
             card.rarity,
@@ -55,6 +57,8 @@ export const createRandomDeck = (deckSize = 40): Deck => {
           new Challenge(
             card.id,
             card.name,
+            false,
+            false,
             card.bodyText,
             card.faction,
             card.rarity,
@@ -68,6 +72,8 @@ export const createRandomDeck = (deckSize = 40): Deck => {
           new Buff(
             card.id,
             card.name,
+            false,
+            false,
             card.bodyText,
             card.faction,
             card.rarity,
@@ -81,6 +87,8 @@ export const createRandomDeck = (deckSize = 40): Deck => {
           new Group(
             card.id,
             card.name,
+            false,
+            false,
             card.bodyText,
             card.faction,
             card.rarity,
@@ -94,6 +102,8 @@ export const createRandomDeck = (deckSize = 40): Deck => {
           new Information(
             card.id,
             card.name,
+            false,
+            false,
             card.bodyText,
             card.faction,
             card.rarity,
@@ -107,6 +117,8 @@ export const createRandomDeck = (deckSize = 40): Deck => {
           new Item(
             card.id,
             card.name,
+            false,
+            false,
             card.bodyText,
             card.faction,
             card.rarity,
@@ -120,6 +132,8 @@ export const createRandomDeck = (deckSize = 40): Deck => {
           new Location(
             card.id,
             card.name,
+            false,
+            false,
             card.bodyText,
             card.faction,
             card.rarity,
@@ -133,6 +147,8 @@ export const createRandomDeck = (deckSize = 40): Deck => {
           new PlotTwist(
             card.id,
             card.name,
+            false,
+            false,
             card.bodyText,
             card.faction,
             card.rarity,
@@ -146,6 +162,8 @@ export const createRandomDeck = (deckSize = 40): Deck => {
           new Skill(
             card.id,
             card.name,
+            false,
+            false,
             card.bodyText,
             card.faction,
             card.rarity,
@@ -159,6 +177,8 @@ export const createRandomDeck = (deckSize = 40): Deck => {
           new Tactic(
             card.id,
             card.name,
+            false,
+            false,
             card.bodyText,
             card.faction,
             card.rarity,

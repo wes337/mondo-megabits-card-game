@@ -7,11 +7,13 @@ class Information extends Card {
   subType: InformationSubType;
   cost: number;
 
-  constructor(id, name, bodyText, faction, rarity, subType) {
-    super(id, name, bodyText, faction, rarity);
+  constructor(id, name, tapped, faceDown, bodyText, faction, rarity, subType) {
+    super(id, name, tapped, faceDown, bodyText, faction, rarity);
     this.type = "Information";
     this.subType = subType;
     this.cost = 0;
+    this.tapped = tapped;
+    this.faceDown = faceDown;
   }
 }
 

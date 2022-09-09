@@ -54,15 +54,17 @@ class Card {
   faction: string;
   rarity: number;
   tapped: boolean;
+  faceDown: boolean;
 
-  constructor(id, name, bodyText, faction, rarity) {
+  constructor(id, name, tapped, faceDown, bodyText, faction, rarity) {
     this.uuid = generateKey();
     this.id = id;
     this.name = name;
     this.faction = faction;
     this.rarity = rarity;
-    this.tapped = false;
+    this.tapped = tapped;
     this.bodyText = bodyText;
+    this.faceDown = faceDown;
   }
 }
 

@@ -46,6 +46,27 @@ class PuppetMaster {
     this.hand.push(...cards);
   }
 
+  tap(cardUuid: string) {
+    const cardAndLocation = this.findCardByUuid(cardUuid);
+
+    if (!cardAndLocation) {
+      return;
+    }
+
+    const { card, location } = cardAndLocation;
+
+    const cardIsOnBoard = [
+      "battle-zone",
+      "the-think-tank",
+      "buffer-zone",
+    ].includes(location);
+    if (!cardIsOnBoard) {
+      return;
+    }
+
+    card.tapped = true;
+  }
+
   move(cardUuid: string, destination: CardLocation) {
     const cardAndLocation = this.findCardByUuid(cardUuid);
 
@@ -95,6 +116,7 @@ class PuppetMaster {
         this.board.theThinkTank.push(card);
         break;
       case "buffer-zone":
+        card.faceDown = true;
         this.board.bufferZone.push(card);
         break;
       case "battle-zone":

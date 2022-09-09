@@ -21,12 +21,14 @@ class Item extends Card {
   cost: number;
   attachedTo?: Creature;
 
-  constructor(id, name, bodyText, faction, rarity, subType) {
-    super(id, name, bodyText, faction, rarity);
+  constructor(id, name, tapped, faceDown, bodyText, faction, rarity, subType) {
+    super(id, name, tapped, faceDown, bodyText, faction, rarity);
     this.type = "Item";
     this.subType = subType;
     this.cost = 2;
     this.attachedTo = undefined;
+    this.tapped = tapped;
+    this.faceDown = faceDown;
   }
 }
 

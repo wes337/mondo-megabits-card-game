@@ -67,7 +67,7 @@ function Zone({ name, opponent }) {
       onDrop={onDrop}
     >
       {cardsInZone().map((card) => (
-        <Card card={card} opponent={opponent} />
+        <Card card={card} opponent={opponent} location={name} />
       ))}
     </div>
   );

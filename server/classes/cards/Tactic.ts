@@ -7,11 +7,13 @@ class Tactic extends Card {
   subType: TacticSubType;
   cost: number;
 
-  constructor(id, name, bodyText, faction, rarity, subType) {
-    super(id, name, bodyText, faction, rarity);
+  constructor(id, name, tapped, faceDown, bodyText, faction, rarity, subType) {
+    super(id, name, tapped, faceDown, bodyText, faction, rarity);
     this.type = "Tactic";
     this.subType = subType;
     this.cost = 2;
+    this.tapped = tapped;
+    this.faceDown = faceDown;
   }
 }
 

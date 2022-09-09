@@ -76,6 +76,44 @@ export const move = (userId, rooms, games, params) => {
   messageRoom(room, { type: "game", params: { game } });
 };
 
+export const tap = (userId, rooms, games, params) => {
+  const { gameCode, roomCode, cardUuid } = params;
+  const game = games[gameCode];
+  const room = rooms[roomCode];
+
+  const puppetMaster = game.puppetMasters.find(({ id }) => id === userId);
+  const userIsInRoom = room.users[userId];
+  if (!puppetMaster || !userIsInRoom) {
+    return;
+  }
+  // Check if it is users turn
+  const isUsersTurn = game.turn.player === userId;
+  if (!isUsersTurn) {
+    return;
+  }
+
+  // Check if user owns card
+  const cardAndLocation = puppetMaster.findCardByUuid(cardUuid);
+  if (!cardAndLocation) {
+    return;
+  }
+
+  const { card, location } = cardAndLocation;
+
+  const cardIsOnBoard = [
+    "battle-zone",
+    "the-think-tank",
+    "buffer-zone",
+  ].includes(location);
+  if (!cardIsOnBoard) {
+    return;
+  }
+
+  puppetMaster.tap(card.uuid);
+  games[gameCode] = game;
+  messageRoom(room, { type: "game", params: { game } });
+};
+
 export const play = (userId, rooms, games, params) => {
   const { gameCode, roomCode, cardUuid, destination } = params;
   const game = games[gameCode];

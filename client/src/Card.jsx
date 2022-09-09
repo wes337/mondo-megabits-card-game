@@ -1,11 +1,16 @@
+import { createMemo } from "solid-js";
 import CardBack from "./assets/card-back.png";
 import useStore from "./store";
 import { getCardImageById } from "./utils";
 import "./Card.scss";
 
-function Card({ card, opponent, ...props }) {
+function Card({ card, opponent, location }) {
   const { state, setState, sendMessage } = useStore();
-  const faceDown = props.faceDown || card.faceDown;
+  const faceDown = (location === "hand" && opponent) || card.faceDown;
+
+  const cardIsOnBoard = createMemo(() =>
+    ["battle-zone", "the-think-tank", "buffer-zone"].includes(location)
+  );
 
   const playCard = (destination = "battle-zone") => {
     if (opponent) {
@@ -17,6 +22,21 @@ function Card({ card, opponent, ...props }) {
       params: {
         cardUuid: card.uuid,
         destination,
+        gameCode: state.game.id,
+        roomCode: state.room.code,
+      },
+    });
+  };
+
+  const tapOrUntapCard = () => {
+    if (opponent) {
+      return;
+    }
+
+    sendMessage({
+      type: "tap",
+      params: {
+        cardUuid: card.uuid,
         gameCode: state.game.id,
         roomCode: state.room.code,
       },
@@ -86,6 +106,12 @@ function Card({ card, opponent, ...props }) {
     }));
   };
 
+  const handleDoubleClick = () => {
+    if (cardIsOnBoard()) {
+      tapOrUntapCard();
+    }
+  };
+
   const onClick = (event) => {
     const SINGLE_CLICK = 1;
     const DOUBLE_CLICK = 2;
@@ -95,16 +121,32 @@ function Card({ card, opponent, ...props }) {
         focusOnCard();
         break;
       case DOUBLE_CLICK:
-        playCard();
+        handleDoubleClick();
         break;
     }
   };
 
+  const cardClassName = () => {
+    let className = "card";
+
+    if (opponent) {
+      className += "opponent";
+    }
+
+    if (state.focus.current?.uuid === card.uuid) {
+      className += " focus";
+    }
+
+    if (card.tapped) {
+      className += " tapped";
+    }
+
+    return className;
+  };
+
   return (
     <div
-      class={`card${state.focus.current?.uuid === card.uuid ? " focus" : ""}${
-        opponent ? " opponent" : ""
-      }`}
+      class={cardClassName()}
       onClick={onClick}
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}

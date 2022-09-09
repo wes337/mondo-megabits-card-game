@@ -16,7 +16,7 @@ function OpponentHand() {
     <div class="opponent-hand">
       <For each={opponent().hand}>
         {(card) => {
-          return <Card card={card} faceDown />;
+          return <Card card={card} location="hand" />;
         }}
       </For>
     </div>

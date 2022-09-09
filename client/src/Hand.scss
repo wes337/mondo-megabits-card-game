@@ -3,7 +3,6 @@
 
   .card {
     cursor: grab;
-    transition: transform 0.2s;
 
     &:hover {
       transform: translateY(-75px);
