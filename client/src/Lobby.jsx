@@ -30,8 +30,22 @@ function Lobby() {
             {(room) => (
               <li class="room">
                 <div class="room-code">{room.code}</div>
-                <div class="room-status">
+                <div class="room-users">
                   {room.users} / {room.maxUsers}
+                </div>
+                <div class="room-status">{room.status}</div>
+                <div class="room-join">
+                  <button
+                    disabled={room.status !== "open"}
+                    onClick={() => {
+                      sendMessage({
+                        type: "join",
+                        params: { roomCode: room.code },
+                      });
+                    }}
+                  >
+                    Join
+                  </button>
                 </div>
               </li>
             )}

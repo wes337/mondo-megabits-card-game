@@ -10,6 +10,14 @@ import PlotTwist from "./PlotTwist";
 import Skill from "./Skill";
 import Tactic from "./Tactic";
 
+export type CardLocation =
+  | "hand"
+  | "deck"
+  | "discard-pile"
+  | "the-think-tank"
+  | "buffer-zone"
+  | "battle-zone";
+
 export type CardType =
   | "Creature"
   | "Item"
@@ -23,7 +31,7 @@ export type CardType =
   | "Skill"
   | "Group";
 
-export type Deck = Array<
+export type AnyCard =
   | Card
   | Creature
   | Buff
@@ -34,8 +42,9 @@ export type Deck = Array<
   | Location
   | PlotTwist
   | Skill
-  | Tactic
->;
+  | Tactic;
+
+export type Deck = Array<AnyCard>;
 
 class Card {
   uuid: string;

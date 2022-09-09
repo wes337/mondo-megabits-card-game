@@ -2,7 +2,7 @@
   display: flex;
 
   .card {
-    cursor: pointer;
+    cursor: grab;
     transition: transform 0.2s;
 
     &:hover {
@@ -16,6 +16,8 @@
 
   &.opponent {
     .card {
+      cursor: not-allowed;
+
       transform: translateY(-80%);
       z-index: 1;
 

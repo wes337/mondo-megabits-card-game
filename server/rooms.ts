@@ -8,6 +8,7 @@ export const getRooms = (rooms) => {
       code: roomCode,
       users: Object.keys(rooms[roomCode].users).length || 0,
       maxUsers: MAX_CLIENTS,
+      status: rooms[roomCode].status,
     };
   });
 };
@@ -110,13 +111,20 @@ export const leaveLobby = (userId, lobby, rooms) => {
   sendLobbyInfo(lobby, rooms);
 };
 
+export const updateRoomStatus = (room) => {
+  room.status = Object.keys(room.users).length < MAX_CLIENTS ? "open" : "full";
+};
+
 export const joinRoom = (socket, userId, rooms, lobby, roomCode) => {
   if (!rooms[roomCode]) {
     console.warn(`Room ${roomCode} does not exist!`);
     return;
   }
 
-  if (rooms[roomCode].users.length >= MAX_CLIENTS) {
+  if (
+    rooms[roomCode].users.length >= MAX_CLIENTS ||
+    rooms[roomCode].status === "full"
+  ) {
     console.warn(`Room ${roomCode} is full!`);
     return;
   }
@@ -130,6 +138,7 @@ export const joinRoom = (socket, userId, rooms, lobby, roomCode) => {
 
   const room = rooms[roomCode];
   room.users[userId] = user;
+  updateRoomStatus(room);
 
   leaveLobby(userId, lobby, rooms);
 
@@ -175,6 +184,7 @@ export const leaveRoom = (userId, lobby, rooms) => {
     delete rooms[roomCode];
   } else {
     delete room.users[userId];
+    updateRoomStatus(room);
   }
 
   // Tell the room the user left

@@ -1,10 +1,15 @@
-import { getUsersInRoom, messageOne, messageRoom } from "./rooms";
+import {
+  getUsersInRoom,
+  messageOne,
+  messageRoom,
+  sendLobbyInfo,
+  updateRoomStatus,
+} from "./rooms";
 import { createRandomDeck, getRandomCards } from "./cards";
 import Game from "./classes/Game";
 import PuppetMaster from "./classes/PupperMaster";
 import { generateKey } from "./utils";
 import { User } from "./types";
-import { MAX_CLIENTS } from "./constants";
 
 export const draw = (room, uuid, params) => {
   const cards = getRandomCards(params.number);
@@ -37,6 +42,40 @@ export const endTurn = (userId, rooms, games, params) => {
   messageRoom(room, { type: "game", params: { game } });
 };
 
+export const move = (userId, rooms, games, params) => {
+  const { gameCode, roomCode, cardUuid, destination } = params;
+  const game = games[gameCode];
+  const room = rooms[roomCode];
+
+  const puppetMaster = game.puppetMasters.find(({ id }) => id === userId);
+  const userIsInRoom = room.users[userId];
+  if (!puppetMaster || !userIsInRoom) {
+    return;
+  }
+  // Check if it is users turn
+  const isUsersTurn = game.turn.player === userId;
+  if (!isUsersTurn) {
+    return;
+  }
+
+  // Check if user owns card
+  const cardAndLocation = puppetMaster.findCardByUuid(cardUuid);
+  if (!cardAndLocation) {
+    return;
+  }
+
+  const { card, location } = cardAndLocation;
+
+  // Card is already in location
+  if (location === destination) {
+    return;
+  }
+
+  puppetMaster.move(card.uuid, destination);
+  games[gameCode] = game;
+  messageRoom(room, { type: "game", params: { game } });
+};
+
 export const play = (userId, rooms, games, params) => {
   const { gameCode, roomCode, cardUuid, destination } = params;
   const game = games[gameCode];
@@ -52,12 +91,14 @@ export const play = (userId, rooms, games, params) => {
   if (!isUsersTurn) {
     return;
   }
-  const { card, location } = puppetMaster.findCardByUuid(cardUuid);
 
   // Check if user has card in hand
-  if (!card || location !== "hand") {
+  const cardAndLocation = puppetMaster.findCardByUuid(cardUuid);
+  if (!cardAndLocation || cardAndLocation?.location !== "hand") {
     return;
   }
+  const { card } = cardAndLocation;
+
   // Check if user can pay for card
   const cantAfford = puppetMaster.funding - card.cost < 0;
 
@@ -68,9 +109,6 @@ export const play = (userId, rooms, games, params) => {
   puppetMaster.play(card.uuid, destination);
   games[gameCode] = game;
   messageRoom(room, { type: "game", params: { game } });
-  // Move card to destination
-  // Remove card from hand
-  // Send message to room with updated game
 };
 
 export const leaveGame = (userId, rooms, games) => {
@@ -98,9 +136,7 @@ export const leaveGame = (userId, rooms, games) => {
     (user as User).status = "waiting";
   });
 
-  console.log(room);
-
-  room.status = Object.keys(room.users).length >= MAX_CLIENTS ? "full" : "open";
+  updateRoomStatus(room);
   const users = getUsersInRoom(room);
   messageRoom(room, {
     type: "leave-game",
@@ -109,7 +145,6 @@ export const leaveGame = (userId, rooms, games) => {
 };
 
 export const startGame = (room, games, game) => {
-  room.status = "in-progress";
   game.start();
 
   game.puppetMasters.forEach((puppetMaster) => {
@@ -151,7 +186,7 @@ export const createAndStartGame = (userId, room, games) => {
   startGame(room, games, game);
 };
 
-export const start = (userId, rooms, games) => {
+export const start = (userId, lobby, rooms, games) => {
   const roomCode = Object.keys(rooms).find((roomCode) => {
     return rooms[roomCode].users[userId];
   });
@@ -174,5 +209,7 @@ export const start = (userId, rooms, games) => {
   const userIsHost = userId === Object.keys(room.users)[0];
   if (userIsHost) {
     createAndStartGame(userId, room, games);
+    room.status = "in-progress";
+    sendLobbyInfo(lobby, rooms);
   }
 };

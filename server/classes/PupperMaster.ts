@@ -1,4 +1,5 @@
-import Card from "./cards/Card";
+import { hyphenToCamelCase } from "../utils";
+import Card, { CardLocation } from "./cards/Card";
 
 class PuppetMaster {
   id: string;
@@ -45,7 +46,44 @@ class PuppetMaster {
     this.hand.push(...cards);
   }
 
-  play(cardUuid: string, destination: string) {
+  move(cardUuid: string, destination: CardLocation) {
+    const cardAndLocation = this.findCardByUuid(cardUuid);
+
+    if (!cardAndLocation) {
+      return;
+    }
+
+    const { card, location } = cardAndLocation;
+
+    if (location === destination) {
+      return;
+    }
+
+    // Move card to new location
+    if (["deck", "discard-pile", "hand"].includes(destination)) {
+      const newCardPile = hyphenToCamelCase(destination);
+      this[newCardPile].push(card);
+    }
+
+    // Remove card from old location
+    const oldCardPile = hyphenToCamelCase(location);
+    const cardIsInHandOrDeck = ["deck", "discard-pile", "hand"].includes(
+      location
+    );
+    if (cardIsInHandOrDeck) {
+      const cardIndex = this[oldCardPile].findIndex(
+        (card) => card.uuid === cardUuid
+      );
+      this[oldCardPile].splice(cardIndex, 1);
+    } else {
+      const cardIndex = this.board[oldCardPile].findIndex(
+        (card) => card.uuid === cardUuid
+      );
+      this.board[oldCardPile].splice(cardIndex, 1);
+    }
+  }
+
+  play(cardUuid: string, destination: CardLocation) {
     const cardIndex = this.hand.findIndex((card) => card.uuid === cardUuid);
     const card = this.hand[cardIndex];
 
@@ -69,13 +107,7 @@ class PuppetMaster {
 
   findCardByUuid(cardUuid: string): {
     card: Card;
-    location:
-      | "hand"
-      | "deck"
-      | "discard-pile"
-      | "the-think-tank"
-      | "buffer-zone"
-      | "battle-zone";
+    location: CardLocation;
   } | null {
     const cardInHand = this.hand.find(({ uuid }) => uuid === cardUuid);
     if (cardInHand) {

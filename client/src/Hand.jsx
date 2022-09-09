@@ -17,7 +17,7 @@ function Hand({ opponent }) {
   return (
     <div class={`hand${opponent ? " opponent" : ""}`}>
       <For each={opponent ? opponentHand() : myHand()}>
-        {(card) => <Card card={card} faceDown={opponent} />}
+        {(card) => <Card card={card} faceDown={opponent} opponent={opponent} />}
       </For>
     </div>
   );

@@ -1,13 +1,11 @@
-import { createSignal, createMemo, For } from "solid-js";
-import useStore from "./store";
-import Chat from "./Chat";
-import OpponentHand from "./OpponentHand";
-import Hand from "./Hand";
+import { createMemo } from "solid-js";
 import { hyphenToCamelCase } from "./utils";
-import "./Zone.scss";
+import useStore from "./store";
 import Card from "./Card";
+import "./Zone.scss";
 
 function Zone({ name, opponent }) {
+  let zoneRef;
   const { state, sendMessage } = useStore();
 
   const cardsInZone = createMemo(() => {
@@ -23,18 +21,30 @@ function Zone({ name, opponent }) {
   });
 
   const onDragOver = (event) => {
+    if (opponent) {
+      return;
+    }
+
     event.preventDefault();
-    event.target.classList.add("drag-over");
+    zoneRef.classList.add("drag-over");
   };
 
-  const onDragLeave = (event) => {
-    event.target.classList.remove("drag-over");
+  const onDragLeave = () => {
+    if (opponent) {
+      return;
+    }
+
+    zoneRef.classList.remove("drag-over");
   };
 
   const onDrop = (event) => {
+    if (opponent) {
+      return;
+    }
+
     event.preventDefault();
 
-    event.target.classList.remove("drag-over");
+    zoneRef.classList.remove("drag-over");
     const cardUuid = event.dataTransfer.getData("text");
 
     sendMessage({
@@ -50,13 +60,14 @@ function Zone({ name, opponent }) {
 
   return (
     <div
+      ref={zoneRef}
       class={`zone ${name}${opponent ? " opponent" : ""}`}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
     >
       {cardsInZone().map((card) => (
-        <Card card={card} />
+        <Card card={card} opponent={opponent} />
       ))}
     </div>
   );

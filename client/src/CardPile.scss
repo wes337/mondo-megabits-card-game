@@ -27,4 +27,10 @@
       }
     }
   }
+
+  &.drag-over {
+    outline: 4px solid red;
+    z-index: 1;
+    transform: scale(2);
+  }
 }

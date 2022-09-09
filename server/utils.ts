@@ -6,3 +6,9 @@ export const generateKey = (length = 5): string => {
   }
   return result;
 };
+
+export const hyphenToCamelCase = (hyphenString) => {
+  return hyphenString.replace(/-([a-z])/g, (g) => {
+    return g[1].toUpperCase();
+  });
+};

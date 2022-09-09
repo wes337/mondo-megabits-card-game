@@ -9,7 +9,7 @@ import {
   leaveRoom,
   cleanUp,
 } from "./rooms";
-import { play, start, endTurn, leaveGame } from "./game";
+import { play, move, start, endTurn, leaveGame } from "./game";
 import { Rooms } from "./types";
 
 const port = 8080;
@@ -57,10 +57,13 @@ webSocketServer.on("connection", (socket) => {
           ready(userId, rooms, params);
           break;
         case "start":
-          start(userId, rooms, games);
+          start(userId, lobby, rooms, games);
           break;
         case "play":
           play(userId, rooms, games, params);
+          break;
+        case "move":
+          move(userId, rooms, games, params);
           break;
         case "end-turn":
           endTurn(userId, rooms, games, params);

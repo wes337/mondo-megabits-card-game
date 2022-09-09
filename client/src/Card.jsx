@@ -31,6 +31,10 @@ function Card({ card, opponent, ...props }) {
   };
 
   const focusOnCard = () => {
+    if (opponent && faceDown) {
+      return;
+    }
+
     if (state.focus.current?.uuid === card.uuid) {
       removeFocusOnCard();
     } else {
@@ -44,6 +48,10 @@ function Card({ card, opponent, ...props }) {
   };
 
   const removeFocusOnCard = () => {
+    if (opponent && faceDown) {
+      return;
+    }
+
     setState((state) => ({
       focus: {
         ...state.focus,
@@ -53,6 +61,10 @@ function Card({ card, opponent, ...props }) {
   };
 
   const onPointerEnter = () => {
+    if (opponent && faceDown) {
+      return;
+    }
+
     setState((state) => ({
       focus: {
         ...state.focus,
@@ -62,6 +74,10 @@ function Card({ card, opponent, ...props }) {
   };
 
   const onPointerLeave = () => {
+    if (opponent && faceDown) {
+      return;
+    }
+
     setState((state) => ({
       focus: {
         ...state.focus,
@@ -86,7 +102,9 @@ function Card({ card, opponent, ...props }) {
 
   return (
     <div
-      class={`card${state.focus.current?.uuid === card.uuid ? " focus" : ""}`}
+      class={`card${state.focus.current?.uuid === card.uuid ? " focus" : ""}${
+        opponent ? " opponent" : ""
+      }`}
       onClick={onClick}
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}

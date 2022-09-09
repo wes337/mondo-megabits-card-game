@@ -92,11 +92,8 @@ function GameBoard() {
               </div>
             </div>
             <div class="card-piles">
-              <CardPile label="Deck" amount={opponent().deck.length} />
-              <CardPile
-                label="Discard"
-                amount={opponent().discardPile.length}
-              />
+              <CardPile name="deck" cards={opponent().deck} />
+              <CardPile name="discard-pile" cards={opponent().discardPile} />
             </div>
           </div>
         </Show>
@@ -111,8 +108,8 @@ function GameBoard() {
         </div>
         <div class="me">
           <div class="card-piles">
-            <CardPile label="Deck" amount={me().deck.length} />
-            <CardPile label="Discard" amount={me().discardPile.length} />
+            <CardPile name="deck" cards={me().deck} />
+            <CardPile name="discard-pile" cards={me().discardPile} />
           </div>
           <div class="stats">
             <div class="stat">

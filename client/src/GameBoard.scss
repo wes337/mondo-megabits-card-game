@@ -39,9 +39,10 @@
     }
 
     .card-piles {
+      white-space: nowrap;
       display: flex;
-      align-items: baseline;
-      justify-content: center;
+      align-items: center;
+      justify-content: space-around;
     }
 
     .turn {
