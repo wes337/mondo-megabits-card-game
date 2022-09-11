@@ -1,4 +1,4 @@
-import { createSignal, createMemo, createEffect, For } from "solid-js";
+import { createSignal, createMemo, onMount, For } from "solid-js";
 import useStore from "./store";
 import Chat from "./Chat";
 import OpponentHand from "./OpponentHand";
@@ -7,11 +7,13 @@ import CardFocus from "./CardFocus";
 import "./GameBoard.scss";
 import Zone from "./Zone";
 import CardPile from "./CardPile";
+import CircleButton from "./CircleButton";
 
 function GameBoard() {
   let mainRef;
   const [chatExpanded, setChatExpanded] = createSignal(false);
   const { state, setState, sendMessage } = useStore();
+
   const me = createMemo(() =>
     state.game.puppetMasters.find(({ id }) => id === state.user.id)
   );
@@ -71,22 +73,21 @@ function GameBoard() {
 
   return (
     <div class="game-board" onClick={onClick}>
-      <div class="header">
-        <Show when={!soloPlay()}>
+      <Show when={!soloPlay()}>
+        <div class="header">
           <Hand opponent />
-        </Show>
-      </div>
-
-      <div class="left-side-bar">
+        </div>
+      </Show>
+      <div class="left-side-bar grunge">
         <Show when={!soloPlay()}>
           <div class="opponent">
             <div class="name">{opponentName()}</div>
             <div class="stats">
-              <div class="stat">
+              <div class="stat panel">
                 <div class="stat-label">Narrative</div>
                 <div class="stat-number">{opponent().narrative}</div>
               </div>
-              <div class="stat">
+              <div class="stat panel">
                 <div class="stat-label">Funding</div>
                 <div class="stat-number">{opponent().funding}</div>
               </div>
@@ -97,13 +98,15 @@ function GameBoard() {
             </div>
           </div>
         </Show>
-        <div class="turn">
+        <div class="turn panel">
           <div class="turn-label">
             {isMyTurn() ? "Your Turn" : `${opponentName()}'s Turn`}
           </div>
           <div class="turn-number">{state.game.turn.number}</div>
           <Show when={isMyTurn()}>
-            <button onClick={endTurn}>End My Turn</button>
+            <button class="button" onClick={endTurn}>
+              End My Turn
+            </button>
           </Show>
         </div>
         <div class="me">
@@ -112,11 +115,11 @@ function GameBoard() {
             <CardPile name="discard-pile" cards={me().discardPile} />
           </div>
           <div class="stats">
-            <div class="stat">
+            <div class="stat panel">
               <div class="stat-label">Narrative</div>
               <div class="stat-number">{me().narrative}</div>
             </div>
-            <div class="stat">
+            <div class="stat panel">
               <div class="stat-label">Funding</div>
               <div class="stat-number">{me().funding}</div>
             </div>
@@ -134,14 +137,16 @@ function GameBoard() {
         <Zone name="buffer-zone" />
         <Zone name="the-think-tank" />
       </div>
-      <div class={`right-side-bar${chatExpanded() ? " chat-expanded" : ""}`}>
+      <div
+        class={`right-side-bar grunge${chatExpanded() ? " chat-expanded" : ""}`}
+      >
         <div class="options">
-          <button onClick={leaveGame}>Leave</button>
+          <CircleButton label="Leave" onClick={leaveGame} small />
         </div>
         <CardFocus />
         <div class="game-chat">
           <button
-            class="expand-button"
+            class="expand-button button"
             onClick={() => setChatExpanded((expanded) => !expanded)}
           >
             {chatExpanded() ? "Collapse" : "Expand"}

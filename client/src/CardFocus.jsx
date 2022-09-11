@@ -8,14 +8,16 @@ function CardFocus() {
 
   return (
     <div class="card-focus">
-      <Show when={card()}>
-        <div class="name">{card().name}</div>
-        <div class="cost">Cost: {card().cost}</div>
-        <div class="type">Type: {card().type}</div>
-        <div class="subtype">Subtype: {card().subType}</div>
-        <div class="faction">Faction: {card().faction}</div>
-        <div class="body-text">{card().bodyText}</div>
-      </Show>
+      <div class="card">
+        <Show when={card()}>
+          <div class="name">{card().name}</div>
+          <div class="cost">Cost: {card().cost}</div>
+          <div class="type">Type: {card().type}</div>
+          <div class="subtype">Subtype: {card().subType}</div>
+          <div class="faction">Faction: {card().faction}</div>
+          <div class="body-text">{card().bodyText}</div>
+        </Show>
+      </div>
     </div>
   );
 }

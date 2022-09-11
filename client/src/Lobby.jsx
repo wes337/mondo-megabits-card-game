@@ -1,6 +1,8 @@
 import { createSignal, For } from "solid-js";
 import useStore from "./store";
 import "./Lobby.scss";
+import CircleButton from "./CircleButton";
+import Plasma from "./Plasma";
 
 function Lobby() {
   const { state, sendMessage } = useStore();
@@ -25,52 +27,67 @@ function Lobby() {
   return (
     <div class="lobby">
       <div class="rooms">
-        <ul>
-          <For each={state.rooms}>
-            {(room) => (
-              <li class="room">
-                <div class="room-code">{room.code}</div>
-                <div class="room-users">
-                  {room.users} / {room.maxUsers}
-                </div>
-                <div class="room-status">{room.status}</div>
-                <div class="room-join">
-                  <button
-                    disabled={room.status !== "open"}
-                    onClick={() => {
-                      sendMessage({
-                        type: "join",
-                        params: { roomCode: room.code },
-                      });
-                    }}
-                  >
-                    Join
-                  </button>
-                </div>
+        <div class="headers yellow">
+          <div class="header">Code</div>
+          <div class="header">Users</div>
+          <div class="header">Status</div>
+        </div>
+        <hr class="tall" />
+        <For each={state.rooms}>
+          {(room) => (
+            <div class="room">
+              <div class="room-code teal">{room.code}</div>
+              <div class="room-users white">
+                {room.users} / {room.maxUsers}
+              </div>
+              <div class={`room-status${room.status === "full" ? " red" : ""}`}>
+                {room.status.toUpperCase()}
+              </div>
+              <div class="room-join">
+                <CircleButton
+                  label="Join"
+                  disabled={room.status !== "open"}
+                  onClick={() => {
+                    sendMessage({
+                      type: "join",
+                      params: { roomCode: room.code },
+                    });
+                  }}
+                  color="red"
+                  small
+                />
+              </div>
+            </div>
+          )}
+        </For>
+      </div>
+      <div class="users">
+        <span class="yellow">/// </span>Puppet Masters Online:
+        <hr class="top" />
+        <ul class="list">
+          <For each={state.lobby}>
+            {(user) => (
+              <li class={user.id === state.user.id ? "glow" : "white"}>
+                {user.name}
               </li>
             )}
           </For>
         </ul>
+        <hr class="bottom" />
       </div>
-      <div class="users">
-        <ul>
-          <For each={state.lobby}>{(user) => <li>{user.name}</li>}</For>
-        </ul>
-      </div>
-      <div class="footer">
-        <button onClick={createRoom}>Create</button>
-        <button
+      <div class="footer panel">
+        <CircleButton label="Create" onClick={createRoom} />
+        <CircleButton
+          label="Join"
           onClick={() => {
             setShowInput(true);
             setInput("");
           }}
-        >
-          Join
-        </button>
+        />
       </div>
       <Show when={showInput()}>
         <div class="modal">
-          <div class="join-room">
+          <div class="join-room panel">
             <form onSubmit={joinRoom}>
               <label>Room code:</label>
               <input
@@ -79,10 +96,18 @@ function Lobby() {
                 onChange={(event) => setInput(event.target.value)}
               />
               <div class="modal-footer">
-                <button type="submit" disabled={input().length === 0}>
+                <button
+                  class="button"
+                  type="submit"
+                  disabled={input().length === 0}
+                >
                   OK
                 </button>
-                <button type="button" onClick={() => setShowInput(false)}>
+                <button
+                  class="button"
+                  type="button"
+                  onClick={() => setShowInput(false)}
+                >
                   Cancel
                 </button>
               </div>

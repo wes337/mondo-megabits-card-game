@@ -4,7 +4,7 @@
 
 @mixin textColorAndShadow($color) {
   color: $color;
-  text-shadow: 0 0 25px rgba($color, 0.75);
+  text-shadow: 0 0 25px $color;
 }
 
 @mixin defaultTextSizing() {
@@ -14,7 +14,8 @@
   line-height: 20px;
 }
 
-p {
+p,
+label {
   @include textColorAndShadow($colorGreen);
   @include defaultTextSizing();
 
@@ -114,12 +115,12 @@ p {
 .arrow {
   &::before {
     font-family: $systemFont;
-    content: "🡆";
+    content: "→";
   }
 
   &::after {
     font-family: $systemFont;
-    content: "🡄";
+    content: "←";
   }
 }
 
@@ -138,7 +139,7 @@ p {
   }
 }
 
-ul {
+ul.list {
   list-style: none;
   margin: 5px 0;
   padding-left: 20px;

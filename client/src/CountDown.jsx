@@ -33,9 +33,10 @@ function CountDown({ from = 5, callback = () => {} }) {
   return (
     <Show when={count() > 0}>
       <div class="countdown">
-        <h1>
-          Starting in: <span class="count">{count()}</span>
-        </h1>
+        <h1 class="white">Starting in:</h1>
+        <div class="count">
+          <span class="glow">{count()}</span>
+        </div>
       </div>
     </Show>
   );

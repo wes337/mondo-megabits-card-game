@@ -67,13 +67,13 @@ function useStore() {
       }
       case "leave-game": {
         const { roomCode, users } = params;
-        setState((state) => ({
+        setState({
           game: null,
           room: {
             code: roomCode,
             users,
           },
-        }));
+        });
         break;
       }
       case "chat": {
@@ -81,6 +81,7 @@ function useStore() {
           setState((state) => ({
             chatMessages: [...state.chatMessages, params.chatMessage],
           }));
+          break;
         }
         break;
       }
@@ -104,14 +105,7 @@ function useStore() {
       }
       case "game": {
         const { game } = params;
-        console.log(game);
         setState({ game });
-        break;
-      }
-      case "draw": {
-        setState((state) => ({
-          hand: [...state.hand, ...params.cards],
-        }));
         break;
       }
       default: {

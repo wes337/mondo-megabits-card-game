@@ -1,12 +1,37 @@
-.card-focus {
-  outline: 2px solid yellowgreen;
+@import "./styles/effects.scss";
+@import "./styles/animations.scss";
 
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  justify-content: flex-start;
+.card-focus {
+  display: flex;
+  padding: 0.5rem;
+  background-image: $noise;
+  animation: 0.15s linear infinite alternate noise;
+  background-color: $colorRed;
+  justify-content: center;
+  align-items: flex-start;
   overflow: auto;
 
-  grid-auto-rows: max-content;
+  border-radius: 10px;
+
+  .card {
+    flex-grow: 1;
+    flex-shrink: 0;
+    height: calc(100% - 1rem);
+    max-width: 90%;
+    margin: 0.5rem 0;
+
+    background-color: $colorBlack;
+    background-image: $noise;
+    border-radius: 0.25rem;
+    box-shadow: 0px 0px 0.75rem 0.75rem $colorBlack;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-content: flex-start;
+    overflow: auto;
+
+    grid-auto-rows: max-content;
+  }
 
   .name {
   }

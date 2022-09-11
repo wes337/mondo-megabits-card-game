@@ -16,10 +16,6 @@ function Chat() {
     messagesRef.scrollTop = messagesRef.scrollHeight;
   });
 
-  onCleanup(() => {
-    setState({ chatMessages: [] });
-  });
-
   const sendChatMessage = (event) => {
     event.preventDefault();
 
@@ -61,9 +57,17 @@ function Chat() {
         <For each={state.chatMessages}>
           {(message) => (
             <div class="message">
-              <p>{message.message}</p>
-              <div class="message-user">{message.user.name}</div>
-              <div class="message-date">{message.date}</div>
+              <p>
+                <span
+                  class={`message-user ${
+                    message.user.id === state.user.id ? "teal" : "white"
+                  }`}
+                >
+                  {message.user.name}
+                </span>{" "}
+                {message.message}
+              </p>
+              <div class="message-date yellow">{message.date}</div>
             </div>
           )}
         </For>
@@ -74,7 +78,9 @@ function Chat() {
           onChange={(event) => setInput(event.target.value)}
           value={input()}
         />
-        <button type="submit">Send</button>
+        <button class="button" type="submit">
+          Send
+        </button>
       </form>
     </div>
   );

@@ -32,9 +32,6 @@ function App() {
       <div class="app">
         <Show when={userIsInLobbyOrRoom()} fallback={<Connect />}>
           {renderMain()}
-          {/* <Show when={state.room} fallback={<Lobby />}>
-          <Room />
-        </Show> */}
         </Show>
       </div>
       <div class="orientation">
