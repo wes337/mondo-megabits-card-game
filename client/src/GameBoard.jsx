@@ -74,28 +74,30 @@ function GameBoard() {
   return (
     <div class="game-board" onClick={onClick}>
       <Show when={!soloPlay()}>
-        <div class="header">
+        <div class="header grunge">
           <Hand opponent />
         </div>
       </Show>
       <div class="left-side-bar grunge">
         <Show when={!soloPlay()}>
           <div class="opponent">
-            <div class="name">{opponentName()}</div>
-            <div class="stats">
-              <div class="stat panel">
-                <div class="stat-label">Narrative</div>
-                <div class="stat-number">{opponent().narrative}</div>
+            <fieldset>
+              <legend class="white">{opponentName()}</legend>
+              <div class="stats">
+                <div class="stat panel">
+                  <div class="stat-label">Narrative</div>
+                  <div class="stat-number">{opponent().narrative}</div>
+                </div>
+                <div class="stat panel">
+                  <div class="stat-label">Funding</div>
+                  <div class="stat-number">{opponent().funding}</div>
+                </div>
               </div>
-              <div class="stat panel">
-                <div class="stat-label">Funding</div>
-                <div class="stat-number">{opponent().funding}</div>
+              <div class="card-piles">
+                <CardPile name="deck" cards={opponent().deck} />
+                <CardPile name="discard-pile" cards={opponent().discardPile} />
               </div>
-            </div>
-            <div class="card-piles">
-              <CardPile name="deck" cards={opponent().deck} />
-              <CardPile name="discard-pile" cards={opponent().discardPile} />
-            </div>
+            </fieldset>
           </div>
         </Show>
         <div class="turn panel">
@@ -110,21 +112,23 @@ function GameBoard() {
           </Show>
         </div>
         <div class="me">
-          <div class="card-piles">
-            <CardPile name="deck" cards={me().deck} />
-            <CardPile name="discard-pile" cards={me().discardPile} />
-          </div>
-          <div class="stats">
-            <div class="stat panel">
-              <div class="stat-label">Narrative</div>
-              <div class="stat-number">{me().narrative}</div>
+          <fieldset>
+            <legend class="white">{state.user.name}</legend>
+            <div class="card-piles">
+              <CardPile name="deck" cards={me().deck} />
+              <CardPile name="discard-pile" cards={me().discardPile} />
             </div>
-            <div class="stat panel">
-              <div class="stat-label">Funding</div>
-              <div class="stat-number">{me().funding}</div>
+            <div class="stats">
+              <div class="stat panel">
+                <div class="stat-label">Narrative</div>
+                <div class="stat-number">{me().narrative}</div>
+              </div>
+              <div class="stat panel">
+                <div class="stat-label">Funding</div>
+                <div class="stat-number">{me().funding}</div>
+              </div>
             </div>
-          </div>
-          <div class="name">{state.user.name}</div>
+          </fieldset>
         </div>
       </div>
       <div ref={mainRef} class={`main${soloPlay() ? " solo-play" : ""}`}>

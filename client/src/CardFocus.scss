@@ -3,6 +3,7 @@
 
 .card-focus {
   display: flex;
+  flex-grow: 1;
   padding: 0.5rem;
   background-image: $noise;
   animation: 0.15s linear infinite alternate noise;

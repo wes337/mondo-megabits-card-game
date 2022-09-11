@@ -33,14 +33,10 @@ function Connect() {
   return (
     <div class="connect">
       <div class="video">
-        <video autoplay="true" loop="true" playsinline="true">
+        <video autoplay="true" loop="true" playsinline="true" muted>
           <source
             type='video/mp4; codecs="av01.0.13M.10"'
             src="https://cdn.mondomegabits.com/logo/Mondo flashing logo_r3 - strobe.mp4"
-          />
-          <source
-            src="https://cdn.mondomegabits.com/logo.mp4"
-            type="video/mp4"
           />
         </video>
       </div>

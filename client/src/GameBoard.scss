@@ -3,7 +3,7 @@
 .game-board {
   display: grid;
   grid-template-columns: 1fr 10fr 2fr;
-  grid-template-rows: 10% 75% 15%;
+  grid-template-rows: 5% 75% 15%;
   height: 100%;
   width: 100%;
 
@@ -14,11 +14,15 @@
 
   .left-side-bar {
     grid-column: 1 / 2;
-    grid-row: 1 / span 3;
+    grid-row: 1 / span all;
 
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+
+    fieldset {
+      border: 1px solid $colorRed;
+    }
 
     .stats {
       display: flex;
@@ -70,11 +74,11 @@
 
   .right-side-bar {
     grid-column: 3 / 3;
-    grid-row: 1 / span 3;
+    grid-row: 1 / span all;
 
-    display: grid;
-    grid-template-rows: auto 3fr 1fr;
-
+    display: flex;
+    flex-direction: column;
+    max-height: 100vh;
     overflow: clip;
 
     &.chat-expanded {
