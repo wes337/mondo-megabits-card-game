@@ -1,3 +1,5 @@
+import express from "express";
+import http from "http";
 import { WebSocketServer } from "ws";
 import { v4 as uuidv4 } from "uuid";
 import {
@@ -12,8 +14,13 @@ import {
 import { play, move, tap, start, endTurn, leaveGame } from "./game";
 import { Rooms } from "./types";
 
-const port = 8080;
-const webSocketServer = new WebSocketServer({ port }, () => {
+const app = express();
+const port = process.env.PORT || 5000;
+
+const server = http.createServer(app);
+server.listen(port);
+
+const webSocketServer = new WebSocketServer({ server }, () => {
   console.log(`=== Web socket server started on port ${port} ===`);
 });
 
