@@ -27,3 +27,9 @@ body {
   background-image: url("./assets/subtle-grunge.png");
   background-blend-mode: overlay;
 }
+
+.light-grunge {
+  background-color: $colorLightGray;
+  background-image: url("./assets/subtle-grunge.png");
+  background-blend-mode: overlay;
+}

@@ -1,7 +1,9 @@
+@import "./styles/colors.scss";
+
 .card {
   cursor: grab;
   max-width: 180px;
-  transition: transform 0.2s;
+  transition: transform 0.2s ease-in-out;
 
   &.opponent {
     cursor: pointer;
@@ -21,19 +23,20 @@
     z-index: 0;
 
     img {
-      outline: 4px solid red;
+      outline: 4px solid $colorRed;
     }
   }
 
   &:hover {
     img {
-      outline: 2px solid yellow;
+      outline: 2px solid $colorYellow;
+      filter: brightness(1.25);
     }
   }
 
   &:active {
     img {
-      outline: 4px solid green;
+      outline: 4px solid $colorTeal;
     }
   }
 }

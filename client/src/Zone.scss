@@ -1,3 +1,5 @@
+@import "./styles/colors.scss";
+
 .zone {
   position: relative;
   display: flex;
@@ -8,48 +10,45 @@
   &:after {
     top: 0;
     right: 0;
-    background-color: lightblue;
+
     position: absolute;
   }
 
   &.the-think-tank {
-    background-color: purple;
+    background-color: $colorGray;
 
     &:after {
       content: "The Think Tank";
     }
 
     &.opponent {
-      background-color: olive;
     }
   }
 
   &.buffer-zone {
-    background-color: peru;
-
+    background-color: rgba($colorGray, 0.5);
     &:after {
       content: "Buffer Zone";
     }
 
     &.opponent {
-      background-color: palevioletred;
     }
   }
 
   &.battle-zone {
-    background-color: lightcoral;
+    background-color: rgba($colorGray, 0.05);
 
     &:after {
       content: "Battle Zone";
     }
 
     &.opponent {
-      background-color: aquamarine;
     }
   }
 
   &.drag-over {
-    outline: 4px solid red;
+    outline: 4px solid $colorRed;
     z-index: 1;
+    filter: saturate(4);
   }
 }

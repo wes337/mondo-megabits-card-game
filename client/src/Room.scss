@@ -36,8 +36,9 @@
     grid-column: 2 / 2;
     border: 4px outset $colorGray;
     border-bottom: 0;
-    overflow: auto;
     padding: 0.5rem;
+    overflow-x: hidden;
+    overflow-y: auto;
 
     ul {
       li {

@@ -1,4 +1,4 @@
-import { createSignal, createMemo, createEffect, For, Show } from "solid-js";
+import { createSignal, createMemo, For, Show } from "solid-js";
 import useStore from "./store";
 import Chat from "./Chat";
 import "./Room.scss";
@@ -42,10 +42,6 @@ function Room() {
 
     setReady(nextValue);
   };
-
-  createEffect(() => {
-    console.log(state.room);
-  });
 
   return (
     <div class="room">

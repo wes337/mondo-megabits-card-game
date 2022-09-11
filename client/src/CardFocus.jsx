@@ -8,13 +8,21 @@ function CardFocus() {
 
   return (
     <div class="card-focus">
-      <div class="card">
+      <div class="focused-card">
         <Show when={card()}>
-          <div class="name">{card().name}</div>
-          <div class="cost">Cost: {card().cost}</div>
-          <div class="type">Type: {card().type}</div>
-          <div class="subtype">Subtype: {card().subType}</div>
-          <div class="faction">Faction: {card().faction}</div>
+          <div class="name teal">{card().name}</div>
+          <div class="cost yellow">
+            <span class="white">Cost:</span> {card().cost}
+          </div>
+          <div class="type">
+            <span class="white">Type:</span> {card().type}
+          </div>
+          <div class="subtype">
+            <span class="white">Subtype:</span> {card().subType}
+          </div>
+          <div class="faction">
+            <span class="white">Faction:</span> {card().faction}
+          </div>
           <div class="body-text">{card().bodyText}</div>
         </Show>
       </div>

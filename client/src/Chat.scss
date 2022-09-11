@@ -4,7 +4,8 @@
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
 
   .messages {
     display: flex;
@@ -13,7 +14,8 @@
     background-color: $colorDarkestGray;
     background-image: url("./assets/subtle-grunge.png");
     background-blend-mode: overlay;
-    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
     padding: 1rem;
     gap: 0.5rem;
 

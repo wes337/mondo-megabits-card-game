@@ -14,7 +14,7 @@
 
   border-radius: 10px;
 
-  .card {
+  .focused-card {
     flex-grow: 1;
     flex-shrink: 0;
     height: calc(100% - 1rem);
@@ -27,7 +27,7 @@
     box-shadow: 0px 0px 0.75rem 0.75rem $colorBlack;
 
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr auto;
     justify-content: flex-start;
     overflow: auto;
 
@@ -35,6 +35,12 @@
   }
 
   .name {
+    font-weight: 600;
+  }
+
+  .cost {
+    margin-left: auto;
+    font-weight: 600;
   }
 
   .type,

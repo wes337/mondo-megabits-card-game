@@ -1,7 +1,7 @@
 import { createStore } from "solid-js/store";
 import initialState from "./initialState";
 
-const ws = new WebSocket("ws://localhost:8080");
+const ws = new WebSocket(import.meta.env.VITE_WS_SERVER);
 
 function useStore() {
   const [state, setState] = createStore(initialState);
@@ -20,8 +20,6 @@ function useStore() {
 
   ws.onmessage = (event) => {
     const { type, params } = JSON.parse(event.data);
-
-    console.log("=== EVENT ===", type, params);
 
     switch (type) {
       case "connected": {
@@ -48,6 +46,7 @@ function useStore() {
           room: {
             code: roomCode,
             users,
+            chatMessages: [],
           },
         }));
         break;
@@ -72,6 +71,7 @@ function useStore() {
           room: {
             code: roomCode,
             users,
+            chatMessages: state.room?.chatMessages || [],
           },
         });
         break;
@@ -79,7 +79,10 @@ function useStore() {
       case "chat": {
         if (params.chatMessage.user.id !== state.user.id) {
           setState((state) => ({
-            chatMessages: [...state.chatMessages, params.chatMessage],
+            room: {
+              ...state.room,
+              chatMessages: [...state.room.chatMessages, params.chatMessage],
+            },
           }));
           break;
         }

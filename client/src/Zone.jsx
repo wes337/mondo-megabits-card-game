@@ -61,7 +61,7 @@ function Zone({ name, opponent }) {
   return (
     <div
       ref={zoneRef}
-      class={`zone ${name}${opponent ? " opponent" : ""}`}
+      class={`zone panel grunge ${name}${opponent ? " opponent" : ""}`}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}

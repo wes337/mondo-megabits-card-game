@@ -1,8 +1,9 @@
 @import "./styles/colors.scss";
+@import "./styles/fonts.scss";
 
 .game-board {
   display: grid;
-  grid-template-columns: 1fr 10fr 2fr;
+  grid-template-columns: 1fr 10fr 3fr;
   grid-template-rows: 5% 75% 15%;
   height: 100%;
   width: 100%;
@@ -15,6 +16,7 @@
   .left-side-bar {
     grid-column: 1 / 2;
     grid-row: 1 / span all;
+    max-height: 100vh;
 
     display: flex;
     flex-direction: column;
@@ -36,7 +38,16 @@
       }
 
       .stat-number {
-        font-size: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 0.25rem;
+        padding: 0.5rem;
+        font-size: 1.4rem;
+        font-family: $headerFont;
+        background-color: $colorBlack;
+        color: $colorWhite;
+        outline: 4px inset $colorGray;
       }
     }
 
@@ -55,7 +66,17 @@
       background-color: $colorGray;
 
       .turn-number {
-        font-size: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        font-family: $headerFont;
+        color: $colorWhite;
+        margin: 0.5rem;
+      }
+
+      .end-turn-button {
+        padding: 0;
       }
     }
   }
@@ -69,6 +90,11 @@
 
     &.solo-play {
       grid-row: 1 / span 2;
+    }
+
+    .middle {
+      width: 100%;
+      overflow: hidden;
     }
   }
 
@@ -92,6 +118,7 @@
     .game-chat {
       display: flex;
       flex-direction: column;
+      max-height: 50%;
 
       .expand-button {
         margin-left: auto;
@@ -101,7 +128,7 @@
 
   .footer {
     grid-column: 2 / 3;
-    grid-row: 3 / 3;
+    grid-row: 3 / span all;
     z-index: 0;
   }
 }

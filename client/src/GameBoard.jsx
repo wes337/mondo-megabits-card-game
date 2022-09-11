@@ -106,7 +106,7 @@ function GameBoard() {
           </div>
           <div class="turn-number">{state.game.turn.number}</div>
           <Show when={isMyTurn()}>
-            <button class="button" onClick={endTurn}>
+            <button class="end-turn-button button" onClick={endTurn}>
               End My Turn
             </button>
           </Show>
@@ -136,6 +136,9 @@ function GameBoard() {
           <Zone name="the-think-tank" opponent />
           <Zone name="buffer-zone" opponent />
           <Zone name="battle-zone" opponent />
+          <div class="middle grunge">
+            <hr class="dotted-double" />
+          </div>
         </Show>
         <Zone name="battle-zone" />
         <Zone name="buffer-zone" />
@@ -153,20 +156,14 @@ function GameBoard() {
             class="expand-button button"
             onClick={() => setChatExpanded((expanded) => !expanded)}
           >
-            {chatExpanded() ? "Collapse" : "Expand"}
+            {chatExpanded() ? "Hide Chat" : "Show Chat"}
           </button>
           <Show when={chatExpanded()}>
-            <ul>
-              <For each={state.game.puppetMasters}>
-                {(puppetMaster) => (
-                  <li>{getPuppetMasterName(puppetMaster.id)}</li>
-                )}
-              </For>
-            </ul>
+            <Chat />
           </Show>
         </div>
       </div>
-      <div class="footer">
+      <div class="footer panel grunge">
         <Hand />
       </div>
     </div>

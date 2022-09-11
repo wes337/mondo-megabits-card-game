@@ -9,7 +9,7 @@ function Chat() {
 
   createEffect(() => {
     // Scroll to new messages when they arrive
-    if (!messagesRef || state.chatMessages.length === 0) {
+    if (!messagesRef || state.room?.chatMessages.length === 0) {
       return;
     }
 
@@ -31,13 +31,16 @@ function Chat() {
     };
 
     setState((state) => ({
-      chatMessages: [
-        ...state.chatMessages,
-        {
-          ...chatMessage,
-          user: state.user,
-        },
-      ],
+      room: {
+        ...state.room,
+        chatMessages: [
+          ...state.room.chatMessages,
+          {
+            ...chatMessage,
+            user: state.user,
+          },
+        ],
+      },
     }));
 
     sendMessage({
@@ -54,7 +57,7 @@ function Chat() {
   return (
     <div class="chat">
       <div class="messages" ref={messagesRef}>
-        <For each={state.chatMessages}>
+        <For each={state.room.chatMessages}>
           {(message) => (
             <div class="message">
               <p>
@@ -67,7 +70,9 @@ function Chat() {
                 </span>{" "}
                 {message.message}
               </p>
-              <div class="message-date yellow">{message.date}</div>
+              <div class="message-date yellow">
+                {new Date(message.date).toLocaleTimeString("en-US")}
+              </div>
             </div>
           )}
         </For>

@@ -7,7 +7,6 @@ export default {
   lobby: [],
   room: null,
   rooms: {},
-  chatMessages: [],
   game: undefined,
   focus: {
     current: null,
