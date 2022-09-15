@@ -18,17 +18,14 @@ export type ItemSubType =
 class Item extends Card {
   type: CardType;
   subType: ItemSubType;
-  cost: number;
   attachedTo?: Creature;
 
-  constructor(id, name, tapped, faceDown, bodyText, faction, rarity, subType) {
-    super(id, name, tapped, faceDown, bodyText, faction, rarity);
+  constructor(id, name, bodyText, faction, rarity, cost, subType) {
+    super(id, name, bodyText, faction, rarity, cost);
     this.type = "Item";
     this.subType = subType;
-    this.cost = 2;
+    this.cost = cost;
     this.attachedTo = undefined;
-    this.tapped = tapped;
-    this.faceDown = faceDown;
   }
 }
 

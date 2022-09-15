@@ -4,16 +4,13 @@ export type ChallengeSubType = "Tutorial Mission" | "";
 
 class Challenge extends Card {
   type: CardType;
-  cost: number;
   subType: ChallengeSubType;
 
-  constructor(id, name, tapped, faceDown, bodyText, faction, rarity, subType) {
-    super(id, name, tapped, faceDown, bodyText, faction, rarity);
+  constructor(id, name, bodyText, faction, rarity, cost, subType) {
+    super(id, name, bodyText, faction, rarity, cost);
     this.type = "Challenge";
     this.subType = subType;
-    this.cost = 0;
-    this.tapped = tapped;
-    this.faceDown = faceDown;
+    this.cost = cost;
   }
 }
 

@@ -1,4 +1,4 @@
-import PuppetMaster from "./PupperMaster";
+import PuppetMaster from "./PuppetMaster";
 import { Challenge, Location } from "./cards";
 
 class Room {

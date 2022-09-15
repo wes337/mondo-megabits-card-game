@@ -10,17 +10,14 @@ export type SkillSubType =
 class Skill extends Card {
   type: CardType;
   subType: SkillSubType;
-  cost: number;
   attachedTo?: Creature;
 
-  constructor(id, name, tapped, faceDown, bodyText, faction, rarity, subType) {
-    super(id, name, tapped, faceDown, bodyText, faction, rarity);
+  constructor(id, name, bodyText, faction, rarity, cost, subType) {
+    super(id, name, bodyText, faction, rarity, cost);
     this.type = "Skill";
     this.subType = subType;
-    this.cost = 1;
+    this.cost = cost;
     this.attachedTo = undefined;
-    this.tapped = tapped;
-    this.faceDown = faceDown;
   }
 }
 

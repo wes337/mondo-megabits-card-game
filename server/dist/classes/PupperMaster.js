@@ -67,6 +67,10 @@ class PuppetMaster {
             this.board[oldCardPile].splice(cardIndex, 1);
         }
     }
+    discardHand() {
+        this.discardPile.push(...this.hand);
+        this.hand = [];
+    }
     play(cardUuid, destination) {
         const cardIndex = this.hand.findIndex((card) => card.uuid === cardUuid);
         const card = this.hand[cardIndex];

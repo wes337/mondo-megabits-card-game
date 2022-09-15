@@ -24,43 +24,43 @@ const createRandomDeck = (deckSize = 40) => {
     randomCards.forEach((card) => {
         switch (card.type) {
             case "Creature": {
-                deck.push(new cards_1.Creature(card.id, card.name, false, false, card.bodyText, card.faction, card.rarity, card.subtype, card.stats));
+                deck.push(new cards_1.Creature(card.id, card.name, card.bodyText, card.faction, card.rarity, 2 + Math.floor(card.rarity / 2), card.subtype, card.stats));
                 break;
             }
             case "Challenge": {
-                deck.push(new cards_1.Challenge(card.id, card.name, false, false, card.bodyText, card.faction, card.rarity, card.subtype));
+                deck.push(new cards_1.Challenge(card.id, card.name, card.bodyText, card.faction, card.rarity, 0, card.subtype));
                 break;
             }
             case "Buff": {
-                deck.push(new cards_1.Buff(card.id, card.name, false, false, card.bodyText, card.faction, card.rarity, card.subtype));
+                deck.push(new cards_1.Buff(card.id, card.name, card.bodyText, card.faction, card.rarity, 2, card.subtype));
                 break;
             }
             case "Group": {
-                deck.push(new cards_1.Group(card.id, card.name, false, false, card.bodyText, card.faction, card.rarity, card.subtype));
+                deck.push(new cards_1.Group(card.id, card.name, card.bodyText, card.faction, 3, card.rarity, card.subtype));
                 break;
             }
             case "Information": {
-                deck.push(new cards_1.Information(card.id, card.name, false, false, card.bodyText, card.faction, card.rarity, card.subtype));
+                deck.push(new cards_1.Information(card.id, card.name, card.bodyText, card.faction, card.rarity, 0, card.subtype));
                 break;
             }
             case "Item": {
-                deck.push(new cards_1.Item(card.id, card.name, false, false, card.bodyText, card.faction, card.rarity, card.subtype));
+                deck.push(new cards_1.Item(card.id, card.name, card.bodyText, card.faction, card.rarity, 2, card.subtype));
                 break;
             }
             case "Location": {
-                deck.push(new cards_1.Location(card.id, card.name, false, false, card.bodyText, card.faction, card.rarity, card.subtype));
+                deck.push(new cards_1.Location(card.id, card.name, card.bodyText, card.faction, card.rarity, 0, card.subtype));
                 break;
             }
             case "Plot Twist": {
-                deck.push(new cards_1.PlotTwist(card.id, card.name, false, false, card.bodyText, card.faction, card.rarity, card.subtype));
+                deck.push(new cards_1.PlotTwist(card.id, card.name, card.bodyText, card.faction, card.rarity, 0, card.subtype));
                 break;
             }
             case "Skill": {
-                deck.push(new cards_1.Skill(card.id, card.name, false, false, card.bodyText, card.faction, card.rarity, card.subtype));
+                deck.push(new cards_1.Skill(card.id, card.name, card.bodyText, card.faction, card.rarity, 1, card.subtype));
                 break;
             }
             case "Tactic": {
-                deck.push(new cards_1.Tactic(card.id, card.name, false, false, card.bodyText, card.faction, card.rarity, card.subtype));
+                deck.push(new cards_1.Tactic(card.id, card.name, card.bodyText, card.faction, card.rarity, 2, card.subtype));
                 break;
             }
             default: {

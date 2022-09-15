@@ -7,8 +7,11 @@ const express_1 = __importDefault(require("express"));
 const http_1 = __importDefault(require("http"));
 const ws_1 = require("ws");
 const uuid_1 = require("uuid");
-const rooms_1 = require("./rooms");
-const game_1 = require("./game");
+const room_1 = require("./functions/room");
+const lobby_1 = require("./functions/lobby");
+const game_1 = require("./functions/game");
+const chat_1 = require("./functions/chat");
+const messages_1 = require("./types/messages");
 const app = (0, express_1.default)();
 const port = process.env.PORT || 5000;
 const server = http_1.default.createServer(app);
@@ -16,9 +19,6 @@ server.listen(port);
 const webSocketServer = new ws_1.WebSocketServer({ server }, () => {
     console.log(`=== Web socket server started on port ${port} ===`);
 });
-const rooms = {};
-const lobby = {};
-const games = {};
 webSocketServer.on("connection", (socket) => {
     const userId = (0, uuid_1.v4)();
     const connectedMessage = {
@@ -33,41 +33,46 @@ webSocketServer.on("connection", (socket) => {
             const message = JSON.parse(data);
             const { type, params } = message;
             switch (type) {
-                case "lobby":
-                    (0, rooms_1.joinLobby)(socket, userId, rooms, lobby, params);
+                case messages_1.MESSAGE_TYPES.PING:
                     break;
-                case "create":
-                    (0, rooms_1.createRoom)(socket, userId, rooms, lobby);
+                case messages_1.MESSAGE_TYPES.LOBBY:
+                    (0, lobby_1.joinLobby)(userId, socket, params);
                     break;
-                case "join":
-                    (0, rooms_1.joinRoom)(socket, userId, rooms, lobby, params.roomCode);
+                case messages_1.MESSAGE_TYPES.CREATE:
+                    (0, room_1.createRoom)(userId);
                     break;
-                case "leave":
-                    (0, rooms_1.leaveRoom)(userId, lobby, rooms);
+                case messages_1.MESSAGE_TYPES.JOIN:
+                    (0, room_1.joinRoom)(userId, params);
                     break;
-                case "chat":
-                    (0, rooms_1.chat)(userId, rooms, params);
+                case messages_1.MESSAGE_TYPES.LEAVE:
+                    (0, room_1.leaveRoom)(userId);
                     break;
-                case "ready":
-                    (0, rooms_1.ready)(userId, rooms, params);
+                case messages_1.MESSAGE_TYPES.CHAT:
+                    (0, chat_1.sendChatMessage)(userId, params);
                     break;
-                case "start":
-                    (0, game_1.start)(userId, lobby, rooms, games);
+                case messages_1.MESSAGE_TYPES.STATUS:
+                    (0, room_1.updateStatus)(userId, params);
                     break;
-                case "play":
-                    (0, game_1.play)(userId, rooms, games, params);
+                case messages_1.MESSAGE_TYPES.START:
+                    (0, game_1.start)(userId);
                     break;
-                case "move":
-                    (0, game_1.move)(userId, rooms, games, params);
+                case messages_1.MESSAGE_TYPES.PLAY:
+                    (0, game_1.play)(userId, params);
                     break;
-                case "tap":
-                    (0, game_1.tap)(userId, rooms, games, params);
+                case messages_1.MESSAGE_TYPES.MOVE:
+                    (0, game_1.move)(userId, params);
                     break;
-                case "end-turn":
-                    (0, game_1.endTurn)(userId, rooms, games, params);
+                case messages_1.MESSAGE_TYPES.TAP:
+                    (0, game_1.tap)(userId, params);
                     break;
-                case "leave-game":
-                    (0, game_1.leaveGame)(userId, rooms, games);
+                case messages_1.MESSAGE_TYPES.TARGET:
+                    (0, game_1.target)(userId, params);
+                    break;
+                case messages_1.MESSAGE_TYPES.END_TURN:
+                    (0, game_1.endTurn)(userId);
+                    break;
+                case messages_1.MESSAGE_TYPES.LEAVE_GAME:
+                    (0, game_1.leaveGame)(userId);
                     break;
                 default:
                     console.warn(`Type: ${type} unknown`);
@@ -80,7 +85,9 @@ webSocketServer.on("connection", (socket) => {
     });
     socket.on("close", () => {
         console.log("=== DISCONNECTED ===", userId);
-        (0, rooms_1.cleanUp)(userId, lobby, rooms, games);
+        (0, game_1.leaveGame)(userId);
+        (0, room_1.leaveRoom)(userId);
+        (0, lobby_1.leaveLobby)(userId);
     });
 });
 //# sourceMappingURL=index.js.map

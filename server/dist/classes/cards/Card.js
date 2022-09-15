@@ -1,16 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const utils_1 = require("../../utils");
+const string_1 = require("../../utils/string");
 class Card {
-    constructor(id, name, tapped, faceDown, bodyText, faction, rarity) {
-        this.uuid = (0, utils_1.generateKey)();
+    constructor(id, name, bodyText, faction, rarity, cost) {
+        this.uuid = (0, string_1.generateKey)();
         this.id = id;
         this.name = name;
         this.faction = faction;
         this.rarity = rarity;
-        this.tapped = tapped;
         this.bodyText = bodyText;
-        this.faceDown = faceDown;
+        this.faceDown = false;
+        this.tapped = false;
+        this.cost = cost;
     }
 }
 exports.default = Card;

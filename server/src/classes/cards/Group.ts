@@ -6,16 +6,13 @@ export type GroupSubType = "Zaibatsu" | "Faction";
 class Group extends Card {
   type: CardType;
   subType: GroupSubType;
-  cost: number;
   attachedTo?: Creature;
 
-  constructor(id, name, tapped, faceDown, bodyText, faction, rarity, subType) {
-    super(id, name, tapped, faceDown, bodyText, faction, rarity);
+  constructor(id, name, bodyText, faction, rarity, cost, subType) {
+    super(id, name, bodyText, faction, rarity, cost);
     this.type = "Group";
     this.subType = subType;
     this.cost = 3;
-    this.tapped = tapped;
-    this.faceDown = faceDown;
   }
 }
 

@@ -1,4 +1,4 @@
-import { generateKey } from "../../utils";
+import { generateKey } from "../../utils/string";
 import Buff from "./Buff";
 import Challenge from "./Challenge";
 import Creature from "./Creature";
@@ -9,14 +9,6 @@ import Location from "./Location";
 import PlotTwist from "./PlotTwist";
 import Skill from "./Skill";
 import Tactic from "./Tactic";
-
-export type CardLocation =
-  | "hand"
-  | "deck"
-  | "discard-pile"
-  | "the-think-tank"
-  | "buffer-zone"
-  | "battle-zone";
 
 export type CardType =
   | "Creature"
@@ -55,16 +47,18 @@ class Card {
   rarity: number;
   tapped: boolean;
   faceDown: boolean;
+  cost: number;
 
-  constructor(id, name, tapped, faceDown, bodyText, faction, rarity) {
+  constructor(id, name, bodyText, faction, rarity, cost) {
     this.uuid = generateKey();
     this.id = id;
     this.name = name;
     this.faction = faction;
     this.rarity = rarity;
-    this.tapped = tapped;
     this.bodyText = bodyText;
-    this.faceDown = faceDown;
+    this.faceDown = false;
+    this.tapped = false;
+    this.cost = cost;
   }
 }
 

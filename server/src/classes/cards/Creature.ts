@@ -14,7 +14,6 @@ export type CreatureSubType =
 class Creature extends Card {
   type: CardType;
   subType: CreatureSubType;
-  cost: number;
   stats: {
     HP: number;
     STR: number;
@@ -25,24 +24,12 @@ class Creature extends Card {
     PSI: number;
   };
 
-  constructor(
-    id,
-    name,
-    tapped,
-    faceDown,
-    bodyText,
-    faction,
-    rarity,
-    subType,
-    stats
-  ) {
-    super(id, name, tapped, faceDown, bodyText, faction, rarity);
+  constructor(id, name, bodyText, faction, rarity, cost, subType, stats) {
+    super(id, name, bodyText, faction, rarity, cost);
     this.type = "Creature";
     this.subType = subType;
     this.stats = stats;
-    this.cost = 2 + Math.floor(rarity / 2);
-    this.tapped = false;
-    this.faceDown = false;
+    this.cost = cost;
   }
 }
 

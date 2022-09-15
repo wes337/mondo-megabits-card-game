@@ -1,9 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cleanUp = exports.leaveRoom = exports.createRoom = exports.joinRoom = exports.updateRoomStatus = exports.leaveLobby = exports.joinLobby = exports.sendLobbyInfo = exports.getUsersInLobby = exports.getUsersInRoom = exports.ready = exports.chat = exports.messageOne = exports.messageRoom = exports.messageLobby = exports.getRooms = void 0;
+exports.cleanUp = exports.leaveRoom = exports.createRoom = exports.joinRoom = exports.getRoomStatus = exports.getUsersInRoom = exports.getRoomByCode = exports.ready = exports.getRoomUserIsIn = exports.getRoomsInfo = void 0;
 const utils_1 = require("./utils");
 const constants_1 = require("./constants");
-const getRooms = (rooms) => {
+const lobby_1 = require("./lobby");
+const data_1 = require("./data");
+const room_1 = require("./ws/room");
+const getRoomsInfo = () => {
+    const rooms = (0, data_1.getRooms)();
     return Object.keys(rooms).map((roomCode) => {
         return {
             code: roomCode,
@@ -13,185 +17,142 @@ const getRooms = (rooms) => {
         };
     });
 };
-exports.getRooms = getRooms;
-const messageLobby = (lobby, message) => {
-    Object.keys(lobby).forEach((userId) => {
-        const { socket } = lobby[userId];
-        socket.send(JSON.stringify(message));
+exports.getRoomsInfo = getRoomsInfo;
+const getRoomUserIsIn = (userId) => {
+    const rooms = (0, data_1.getRooms)();
+    const roomCode = Object.keys(rooms).find((roomCode) => {
+        return rooms[roomCode].users[userId];
     });
+    if (!roomCode) {
+        return null;
+    }
+    const room = rooms[roomCode];
+    return room;
 };
-exports.messageLobby = messageLobby;
-const messageRoom = (room, message) => {
-    Object.keys(room.users).forEach((userId) => {
-        const { socket } = room.users[userId];
-        socket.send(JSON.stringify(message));
-    });
-};
-exports.messageRoom = messageRoom;
-const messageOne = (userId, room, message) => {
-    const { socket } = room.users[userId];
-    socket.send(JSON.stringify(message));
-};
-exports.messageOne = messageOne;
-const chat = (userId, rooms, params) => {
-    const { roomCode, chatMessage } = params;
-    const user = rooms[roomCode].users[userId];
-    if (!user) {
+exports.getRoomUserIsIn = getRoomUserIsIn;
+const ready = (userId, rooms, params) => {
+    var _a;
+    const { roomCode, status } = params;
+    const room = rooms[roomCode];
+    if (!room) {
         return;
     }
-    const _chatMessage = Object.assign(Object.assign({}, chatMessage), { user: {
-            id: user.id,
-            name: user.name,
-        } });
-    (0, exports.messageRoom)(rooms[roomCode], {
-        type: "chat",
-        params: { chatMessage: _chatMessage },
-    });
-};
-exports.chat = chat;
-const ready = (userId, rooms, params) => {
-    const { roomCode, status } = params;
-    const user = rooms[roomCode].users[userId];
+    const user = (_a = room.users) === null || _a === void 0 ? void 0 : _a[userId];
     if (!user) {
         return;
     }
     user.status = status;
-    (0, exports.messageRoom)(rooms[roomCode], {
+    (0, room_1.messageRoom)(room, {
         type: "ready",
         params: { userId, status },
     });
+    if (status === "ready") {
+        (0, room_1.messageRoomAsSystem)(roomCode, `${user.name} is ready!`);
+    }
+    else if (status === "waiting") {
+        (0, room_1.messageRoomAsSystem)(roomCode, `${user.name} isn't ready...`);
+    }
+    const allUsersAreReady = !Object.entries(room.users).find(([_, user]) => user.status !== "ready");
+    if (allUsersAreReady) {
+        (0, room_1.messageRoomAsSystem)(roomCode, "Everybody is ready! Starting game...");
+    }
 };
 exports.ready = ready;
-const getUsersInRoom = (room) => {
+const getRoomByCode = (roomCode) => {
+    const rooms = (0, data_1.getRooms)();
+    const room = rooms[roomCode];
+    if (!room) {
+        return null;
+    }
+    return room;
+};
+exports.getRoomByCode = getRoomByCode;
+const getUsersInRoom = (roomCode) => {
+    const room = (0, exports.getRoomByCode)(roomCode);
+    if (!room) {
+        return [];
+    }
     const users = Object.entries(room.users).map(([id, { name, status }]) => {
         return { id, name, status };
     });
     return users;
 };
 exports.getUsersInRoom = getUsersInRoom;
-const getUsersInLobby = (lobby) => {
-    const users = Object.entries(lobby).map(([id, { name }]) => {
-        return { id, name };
-    });
-    return users;
+const getRoomStatus = (room) => {
+    return Object.keys(room.users).length < constants_1.MAX_CLIENTS ? "open" : "full";
 };
-exports.getUsersInLobby = getUsersInLobby;
-const sendLobbyInfo = (lobby, rooms) => {
-    const users = (0, exports.getUsersInLobby)(lobby);
-    const otherRooms = (0, exports.getRooms)(rooms);
-    (0, exports.messageLobby)(lobby, {
-        type: "lobby",
-        params: { users, otherRooms },
-    });
-};
-exports.sendLobbyInfo = sendLobbyInfo;
-const joinLobby = (socket, userId, rooms, lobby, params) => {
-    const { userName } = params;
-    lobby[userId] = { socket, id: userId, name: userName };
-    (0, exports.sendLobbyInfo)(lobby, rooms);
-};
-exports.joinLobby = joinLobby;
-const leaveLobby = (userId, lobby, rooms) => {
-    if (lobby.hasOwnProperty(userId)) {
-        delete lobby[userId];
-    }
-    (0, exports.sendLobbyInfo)(lobby, rooms);
-};
-exports.leaveLobby = leaveLobby;
-const updateRoomStatus = (room) => {
-    room.status = Object.keys(room.users).length < constants_1.MAX_CLIENTS ? "open" : "full";
-};
-exports.updateRoomStatus = updateRoomStatus;
-const joinRoom = (socket, userId, rooms, lobby, roomCode) => {
-    if (!rooms[roomCode]) {
+exports.getRoomStatus = getRoomStatus;
+const joinRoom = (userId, params) => {
+    const { roomCode } = params;
+    const room = (0, exports.getRoomByCode)(roomCode);
+    if (!room) {
         console.warn(`Room ${roomCode} does not exist!`);
         return;
     }
-    if (rooms[roomCode].users.length >= constants_1.MAX_CLIENTS ||
-        rooms[roomCode].status === "full") {
+    if (Object.keys(room.users).length >= constants_1.MAX_CLIENTS || room.status === "full") {
         console.warn(`Room ${roomCode} is full!`);
         return;
     }
+    const lobby = (0, data_1.getLobby)();
+    const socket = lobby[userId].socket;
     const user = {
-        socket,
         id: userId,
+        socket,
         name: lobby[userId].name,
         status: "waiting",
     };
-    const room = rooms[roomCode];
-    room.users[userId] = user;
-    (0, exports.updateRoomStatus)(room);
-    (0, exports.leaveLobby)(userId, lobby, rooms);
-    const users = (0, exports.getUsersInRoom)(room);
-    (0, exports.messageRoom)(room, {
+    room.users = Object.assign(Object.assign({}, room.users), { [userId]: user });
+    room.status = (0, exports.getRoomStatus)(room);
+    (0, lobby_1.leaveLobby)(userId);
+    const users = (0, exports.getUsersInRoom)(roomCode);
+    (0, room_1.messageRoom)(roomCode, {
         type: "join",
         params: { roomCode, users },
     });
+    (0, room_1.messageRoomAsSystem)(roomCode, `${user.name} joined the room`);
 };
 exports.joinRoom = joinRoom;
-const createRoom = (socket, userId, rooms, lobby) => {
+const createRoom = (userId) => {
     const roomCode = (0, utils_1.generateKey)(5);
+    const rooms = (0, data_1.getRooms)();
     if (rooms[roomCode]) {
-        (0, exports.createRoom)(socket, userId, rooms, lobby);
+        (0, exports.createRoom)(userId);
         return;
     }
     rooms[roomCode] = {
-        users: [],
+        users: {},
         status: "open",
+        code: roomCode,
     };
     console.log("=== CREATED ROOM ===");
-    (0, exports.joinRoom)(socket, userId, rooms, lobby, roomCode);
+    (0, exports.joinRoom)(userId, roomCode);
 };
 exports.createRoom = createRoom;
-const leaveRoom = (userId, lobby, rooms) => {
-    const roomCode = Object.keys(rooms).find((roomCode) => {
-        return rooms[roomCode].users[userId];
-    });
-    if (!roomCode) {
+const leaveRoom = (userId) => {
+    const room = (0, exports.getRoomUserIsIn)(userId);
+    if (!room) {
         return;
     }
-    const { socket, name } = rooms[roomCode].users[userId];
-    const room = rooms[roomCode];
+    const { name, socket } = room.users[userId];
+    const rooms = (0, data_1.getRooms)();
     const userIsLastInRoom = Object.keys(room.users).length === 1;
     if (userIsLastInRoom) {
-        delete rooms[roomCode];
+        delete rooms[room.code];
     }
     else {
         delete room.users[userId];
-        (0, exports.updateRoomStatus)(room);
+        room.status = (0, exports.getRoomStatus)(room);
     }
-    (0, exports.messageRoom)(room, {
+    (0, room_1.messageRoom)(room.code, {
         type: "leave",
         params: { userId },
     });
-    (0, exports.joinLobby)(socket, userId, rooms, lobby, { userName: name });
+    (0, room_1.messageRoomAsSystem)(room.code, `${name} left the room`);
+    (0, lobby_1.joinLobby)(userId, socket, { userName: name });
 };
 exports.leaveRoom = leaveRoom;
-const cleanUp = (userId, lobby, rooms, games) => {
-    const roomCode = Object.keys(rooms).find((roomCode) => {
-        return rooms[roomCode].users[userId];
-    });
-    if (roomCode) {
-        const room = rooms[roomCode];
-        const userIsLastInRoom = Object.keys(room.users).length === 1;
-        if (userIsLastInRoom) {
-            delete rooms[roomCode];
-        }
-        else {
-            delete room.users[userId];
-        }
-        (0, exports.messageRoom)(room, {
-            type: "leave",
-            params: { userId },
-        });
-    }
-    (0, exports.leaveLobby)(userId, lobby, rooms);
-    const gameCode = Object.keys(games).find((gameCode) => {
-        return games[gameCode].puppetMasters.find(({ id }) => id === userId);
-    });
-    if (gameCode) {
-        delete games[gameCode];
-    }
+const cleanUp = (userId) => {
+    console.log(userId);
 };
 exports.cleanUp = cleanUp;
 //# sourceMappingURL=rooms.js.map

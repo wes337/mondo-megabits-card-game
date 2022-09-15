@@ -1,15 +1,24 @@
 import { createStore } from "solid-js/store";
 import initialState from "./initialState";
 
-const ws = new WebSocket(import.meta.env.VITE_WS_SERVER);
+const ws = new WebSocket("wss://mondo-megabits.herokuapp.com");
+// const ws = new WebSocket("ws://localhost:5000");
 
 function useStore() {
   const [state, setState] = createStore(initialState);
+
+  const sendMessage = (message) => {
+    ws.send(JSON.stringify(message));
+  };
 
   ws.onopen = () => {
     setState({
       connected: true,
     });
+
+    setInterval(() => {
+      sendMessage({ type: "ping" });
+    }, 40000);
   };
 
   ws.onclose = () => {
@@ -46,7 +55,7 @@ function useStore() {
           room: {
             code: roomCode,
             users,
-            chatMessages: [],
+            chatMessages: state.room?.chatMessages || [],
           },
         }));
         break;
@@ -81,14 +90,17 @@ function useStore() {
           setState((state) => ({
             room: {
               ...state.room,
-              chatMessages: [...state.room.chatMessages, params.chatMessage],
+              chatMessages: [
+                ...(state.room?.chatMessages || []),
+                params.chatMessage,
+              ],
             },
           }));
           break;
         }
         break;
       }
-      case "ready": {
+      case "status": {
         const { userId, status } = params;
         setState((state) => ({
           room: {
@@ -108,7 +120,13 @@ function useStore() {
       }
       case "game": {
         const { game } = params;
+        console.log(game);
         setState({ game });
+        break;
+      }
+      case "target": {
+        const { target } = params;
+        setState({ target });
         break;
       }
       default: {
@@ -116,10 +134,6 @@ function useStore() {
         break;
       }
     }
-  };
-
-  const sendMessage = (message) => {
-    ws.send(JSON.stringify(message));
   };
 
   return { state, setState, sendMessage };

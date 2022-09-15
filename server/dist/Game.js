@@ -3,24 +3,31 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.start = exports.createAndStartGame = exports.createGame = exports.startGame = exports.leaveGame = exports.play = exports.tap = exports.move = exports.endTurn = exports.draw = void 0;
-const rooms_1 = require("./rooms");
+exports.start = exports.createAndStartGame = exports.createGame = exports.startGame = exports.leaveGame = exports.play = exports.tap = exports.target = exports.move = exports.endTurn = exports.getGameAndRoomUserIsIn = void 0;
+const room_1 = require("./room");
+const lobby_1 = require("./ws/lobby");
+const room_2 = require("./ws/room");
 const cards_1 = require("./cards");
 const Game_1 = __importDefault(require("./classes/Game"));
-const PupperMaster_1 = __importDefault(require("./classes/PupperMaster"));
-const utils_1 = require("./utils");
-const draw = (room, uuid, params) => {
-    const cards = (0, cards_1.getRandomCards)(params.number);
-    (0, rooms_1.messageOne)(uuid, room, {
-        type: "draw",
-        params: { cards },
-    });
+const PuppetMaster_1 = __importDefault(require("./classes/PuppetMaster"));
+const user_1 = require("./types/user");
+const messages_1 = require("./types/messages");
+const room_3 = require("./types/room");
+const data_1 = require("./data");
+const getGameAndRoomUserIsIn = (userId) => {
+    const room = (0, room_1.getRoomUserIsIn)(userId);
+    const games = (0, data_1.getGames)();
+    const game = room && games[room.code];
+    return { room, game };
 };
-exports.draw = draw;
-const endTurn = (userId, rooms, games, params) => {
-    const { gameCode, roomCode } = params;
-    const game = games[gameCode];
-    const room = rooms[roomCode];
+exports.getGameAndRoomUserIsIn = getGameAndRoomUserIsIn;
+const endTurn = (userId) => {
+    const room = (0, room_1.getRoomUserIsIn)(userId);
+    if (!room) {
+        return;
+    }
+    const games = (0, data_1.getGames)();
+    const game = games[room.code];
     const puppetMaster = game.puppetMasters.find(({ id }) => id === userId);
     const userIsInRoom = room.users[userId];
     if (!puppetMaster || !userIsInRoom) {
@@ -30,15 +37,30 @@ const endTurn = (userId, rooms, games, params) => {
     if (!isUsersTurn) {
         return;
     }
+    puppetMaster.discardHand();
     game.nextTurn();
-    games[gameCode] = game;
-    (0, rooms_1.messageRoom)(room, { type: "game", params: { game } });
+    const normalDrawPhase = (game.puppetMasters.length === 1 && game.turn.number >= 2) ||
+        game.turn.number > 2;
+    if (normalDrawPhase) {
+        const nextPlayer = game.puppetMasters.find(({ id }) => id === game.turn.player);
+        nextPlayer === null || nextPlayer === void 0 ? void 0 : nextPlayer.drawCards(3);
+    }
+    games[room.code] = game;
+    (0, room_2.messageRoom)(room.code, {
+        type: messages_1.MESSAGE_TYPES.TARGET,
+        params: { target: { from: null, to: null } },
+    });
+    (0, room_2.messageRoom)(room.code, { type: messages_1.MESSAGE_TYPES.GAME, params: { game } });
 };
 exports.endTurn = endTurn;
-const move = (userId, rooms, games, params) => {
-    const { gameCode, roomCode, cardUuid, destination } = params;
-    const game = games[gameCode];
-    const room = rooms[roomCode];
+const move = (userId, params) => {
+    const { cardUuid, destination } = params;
+    const room = (0, room_1.getRoomUserIsIn)(userId);
+    if (!room) {
+        return;
+    }
+    const games = (0, data_1.getGames)();
+    const game = games[room.code];
     const puppetMaster = game.puppetMasters.find(({ id }) => id === userId);
     const userIsInRoom = room.users[userId];
     if (!puppetMaster || !userIsInRoom) {
@@ -57,14 +79,36 @@ const move = (userId, rooms, games, params) => {
         return;
     }
     puppetMaster.move(card.uuid, destination);
-    games[gameCode] = game;
-    (0, rooms_1.messageRoom)(room, { type: "game", params: { game } });
+    games[room.code] = game;
+    (0, room_2.messageRoom)(room.code, { type: messages_1.MESSAGE_TYPES.GAME, params: { game } });
 };
 exports.move = move;
-const tap = (userId, rooms, games, params) => {
-    const { gameCode, roomCode, cardUuid } = params;
-    const game = games[gameCode];
-    const room = rooms[roomCode];
+const target = (userId, params) => {
+    const { target } = params;
+    const room = (0, room_1.getRoomUserIsIn)(userId);
+    if (!room) {
+        return;
+    }
+    const games = (0, data_1.getGames)();
+    const game = games[room.code];
+    const puppetMaster = game.puppetMasters.find(({ id }) => id === userId);
+    const userIsInRoom = room.users[userId];
+    if (!puppetMaster || !userIsInRoom) {
+        return;
+    }
+    (0, room_2.messageRoom)(room.code, { type: messages_1.MESSAGE_TYPES.TARGET, params: { target } }, [
+        userId,
+    ]);
+};
+exports.target = target;
+const tap = (userId, params) => {
+    const { cardUuid } = params;
+    const room = (0, room_1.getRoomUserIsIn)(userId);
+    if (!room) {
+        return;
+    }
+    const games = (0, data_1.getGames)();
+    const game = games[room.code];
     const puppetMaster = game.puppetMasters.find(({ id }) => id === userId);
     const userIsInRoom = room.users[userId];
     if (!puppetMaster || !userIsInRoom) {
@@ -88,14 +132,18 @@ const tap = (userId, rooms, games, params) => {
         return;
     }
     puppetMaster.tap(card.uuid);
-    games[gameCode] = game;
-    (0, rooms_1.messageRoom)(room, { type: "game", params: { game } });
+    games[game.id] = game;
+    (0, room_2.messageRoom)(room.code, { type: messages_1.MESSAGE_TYPES.GAME, params: { game } });
 };
 exports.tap = tap;
-const play = (userId, rooms, games, params) => {
-    const { gameCode, roomCode, cardUuid, destination } = params;
-    const game = games[gameCode];
-    const room = rooms[roomCode];
+const play = (userId, params) => {
+    const { cardUuid, destination } = params;
+    const room = (0, room_1.getRoomUserIsIn)(userId);
+    if (!room) {
+        return;
+    }
+    const games = (0, data_1.getGames)();
+    const game = games[room.code];
     const puppetMaster = game.puppetMasters.find(({ id }) => id === userId);
     const userIsInRoom = room.users[userId];
     if (!puppetMaster || !userIsInRoom) {
@@ -115,37 +163,34 @@ const play = (userId, rooms, games, params) => {
         return;
     }
     puppetMaster.play(card.uuid, destination);
-    games[gameCode] = game;
-    (0, rooms_1.messageRoom)(room, { type: "game", params: { game } });
+    games[game.id] = game;
+    (0, room_2.messageRoom)(room.code, { type: messages_1.MESSAGE_TYPES.GAME, params: { game } });
 };
 exports.play = play;
-const leaveGame = (userId, rooms, games) => {
-    const roomCode = Object.keys(rooms).find((roomCode) => {
-        return rooms[roomCode].users[userId];
-    });
-    if (!roomCode) {
+const leaveGame = (userId) => {
+    const room = (0, room_1.getRoomUserIsIn)(userId);
+    if (!room) {
         return;
     }
-    const gameCode = Object.keys(games).find((gameCode) => {
-        return games[gameCode].puppetMasters.find(({ id }) => id === userId);
-    });
-    if (!gameCode) {
+    const games = (0, data_1.getGames)();
+    const game = games[room.code];
+    if (!game) {
         return;
     }
-    delete games[gameCode];
-    const room = rooms[roomCode];
     Object.entries(room.users).forEach(([_, user]) => {
-        user.status = "waiting";
+        user.status = user_1.USER_STATUS.WAITING;
     });
-    (0, rooms_1.updateRoomStatus)(room);
-    const users = (0, rooms_1.getUsersInRoom)(room);
-    (0, rooms_1.messageRoom)(room, {
-        type: "leave-game",
-        params: { roomCode, users },
+    delete games[room.code];
+    room.status = (0, room_1.getRoomStatus)(room);
+    const users = (0, room_1.getUsersInRoom)(room.code);
+    (0, room_2.messageRoom)(room.code, {
+        type: messages_1.MESSAGE_TYPES.LEAVE_GAME,
+        params: { roomCode: room.code, users },
     });
+    (0, lobby_1.sendLobbyInfo)();
 };
 exports.leaveGame = leaveGame;
-const startGame = (room, games, game) => {
+const startGame = (game) => {
     game.start();
     game.puppetMasters.forEach((puppetMaster) => {
         const randomDeck = (0, cards_1.createRandomDeck)(40);
@@ -153,46 +198,49 @@ const startGame = (room, games, game) => {
         puppetMaster.shuffleDeck();
         puppetMaster.drawCards(12);
     });
+    const games = (0, data_1.getGames)();
     games[game.id] = game;
     console.log("=== STARTED GAME ===");
-    (0, rooms_1.messageRoom)(room, { type: "game", params: { game } });
+    (0, room_2.messageRoom)(game.id, { type: messages_1.MESSAGE_TYPES.GAME, params: { game } });
 };
 exports.startGame = startGame;
-const createGame = (userId, room, games) => {
-    const gameCode = (0, utils_1.generateKey)(5);
-    if (games[gameCode]) {
-        (0, exports.createGame)(userId, games, room);
+const createGame = (userId) => {
+    const room = (0, room_1.getRoomUserIsIn)(userId);
+    if (!room) {
         return;
     }
-    const puppetMasters = Object.keys(room.users).map((userId) => new PupperMaster_1.default(userId));
-    const game = new Game_1.default(gameCode, [...puppetMasters]);
-    games[gameCode] = game;
+    const gameId = room.code;
+    const games = (0, data_1.getGames)();
+    if (games[gameId]) {
+        (0, exports.createGame)(userId);
+        return;
+    }
+    const puppetMasters = Object.keys(room.users).map((userId) => new PuppetMaster_1.default(userId));
+    const game = new Game_1.default(gameId, [...puppetMasters]);
+    games[gameId] = game;
     return game;
 };
 exports.createGame = createGame;
-const createAndStartGame = (userId, room, games) => {
-    const game = (0, exports.createGame)(userId, room, games);
-    (0, exports.startGame)(room, games, game);
+const createAndStartGame = (userId) => {
+    const game = (0, exports.createGame)(userId);
+    (0, exports.startGame)(game);
 };
 exports.createAndStartGame = createAndStartGame;
-const start = (userId, lobby, rooms, games) => {
-    const roomCode = Object.keys(rooms).find((roomCode) => {
-        return rooms[roomCode].users[userId];
-    });
-    if (!roomCode) {
+const start = (userId) => {
+    const room = (0, room_1.getRoomUserIsIn)(userId);
+    if (!room) {
         return;
     }
-    const room = rooms[roomCode];
-    room.users[userId].status = "start";
-    const waitingForOtherUsers = room.users.find((user) => user.status !== "start");
+    room.users[userId].status = user_1.USER_STATUS.START;
+    const waitingForOtherUsers = Object.entries(room.users).find(([_, user]) => user.status !== user_1.USER_STATUS.START && user.status !== user_1.USER_STATUS.READY);
     if (waitingForOtherUsers) {
         return;
     }
     const userIsHost = userId === Object.keys(room.users)[0];
     if (userIsHost) {
-        (0, exports.createAndStartGame)(userId, room, games);
-        room.status = "in-progress";
-        (0, rooms_1.sendLobbyInfo)(lobby, rooms);
+        (0, exports.createAndStartGame)(userId);
+        room.status = room_3.ROOM_STATUS.IN_PROGRESS;
+        (0, lobby_1.sendLobbyInfo)();
     }
 };
 exports.start = start;

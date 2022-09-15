@@ -11,5 +11,12 @@ export default {
   focus: {
     current: null,
     hover: null,
+    spotlight: null,
   },
+  target: {
+    from: null,
+    to: null,
+  },
+  chatExpanded: true,
+  chatInput: "",
 };
