@@ -11,14 +11,14 @@ A general list of things left to do.
 * Save decks somewhere (local storage, db?)
 
 
-Lobby
+## Lobby
 * Add lobby chat
 
-Room
+## Room
 * Add deck selector
 
 
-Front End
+## Front End
 * Preload/cache card images
 * More styles from cards
 * General UI improvements, layout changes
@@ -27,16 +27,16 @@ Front End
 * Create hooks for functions that are used in multiple files
 
 
-Back End (Game related)
+## Back End (Game related)
 * Rename old zones
 * Add "Proselytize" option at end of turn (spend 10 funding to increase narrative by 1)
 * Add way to set/replace location card
 * Combat:
-	* add way for creatures to attack (STR)
-	* add way for creatures to attack (INT)
-	* summoning sickness
-	* prevent attacking figurehead if active zone contains creatures
-	* prevent attacking narrative if there is figurehead or active creatures
+	* Add way for creatures to attack (STR)
+	* Add way for creatures to attack (INT)
+	* Summoning sickness
+	* Prevent attacking figurehead if active zone contains creatures
+	* Prevent attacking narrative if there is figurehead or active creatures
 * Untap all cards at start of turn
 * Allow seating of Figurehead creature in Think Tank
 
