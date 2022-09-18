@@ -19,6 +19,9 @@ class Deck {
         return cardCounts;
     }
     get valid() {
+        if (this.cards.length < 40) {
+            return false;
+        }
         const cardCounts = this.getCardCount();
         const cardsExceedingLimit = Object.values(cardCounts).filter((count) => count > constants_1.MAX_COPIES_OF_CARD_PER_DECK);
         return cardsExceedingLimit.length === 0;

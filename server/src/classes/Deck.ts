@@ -40,6 +40,10 @@ class Deck {
   }
 
   get valid(): boolean {
+    if (this.cards.length < 40) {
+      return false;
+    }
+
     const cardCounts = this.getCardCount();
 
     const cardsExceedingLimit = Object.values(cardCounts).filter(
