@@ -46,9 +46,10 @@ export const updateStatus = (userId, params) => {
     return;
   }
 
-  const { status } = params;
+  const { status, deck } = params;
 
   user.status = status;
+  user.deck = deck;
 
   messageRoom(room.code, {
     type: MESSAGE_TYPES.STATUS,
@@ -104,7 +105,7 @@ export const getRoomStatus = (room) => {
 };
 
 export const joinRoom = (userId, params) => {
-  const { roomCode, deck } = params;
+  const { roomCode } = params;
   const room = getRoomByCode(roomCode);
 
   if (!room) {
@@ -129,7 +130,6 @@ export const joinRoom = (userId, params) => {
     socket,
     name: lobby[userId].name,
     status: USER_STATUS.WAITING,
-    deck: deck || lobby[userId].deck,
   } as User;
 
   room.users = {

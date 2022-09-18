@@ -43,8 +43,9 @@ const updateStatus = (userId, params) => {
     if (!user) {
         return;
     }
-    const { status } = params;
+    const { status, deck } = params;
     user.status = status;
+    user.deck = deck;
     (0, room_1.messageRoom)(room.code, {
         type: messages_1.MESSAGE_TYPES.STATUS,
         params: { userId, status },
@@ -88,7 +89,7 @@ const getRoomStatus = (room) => {
 };
 exports.getRoomStatus = getRoomStatus;
 const joinRoom = (userId, params) => {
-    const { roomCode, deck } = params;
+    const { roomCode } = params;
     const room = (0, exports.getRoomByCode)(roomCode);
     if (!room) {
         console.warn(`Room ${roomCode} does not exist!`);
@@ -106,7 +107,6 @@ const joinRoom = (userId, params) => {
         socket,
         name: lobby[userId].name,
         status: user_1.USER_STATUS.WAITING,
-        deck: deck || lobby[userId].deck,
     };
     room.users = Object.assign(Object.assign({}, room.users), { [userId]: user });
     room.status = (0, exports.getRoomStatus)(room);

@@ -35,7 +35,7 @@ A general list of things left to do.
 
 - Rename old zones
 - Add "Proselytize" option at end of turn (spend 10 funding to increase narrative by 1)
-- Add way to set/replace location card
+- ~~Add way to set/replace location card~~
 - Combat:
   - Add way for creatures to attack (STR)
   - Add way for creatures to attack (INT)

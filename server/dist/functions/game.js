@@ -162,7 +162,6 @@ const createGame = (userId) => {
     const puppetMasters = Object.keys(room.users).map((userId) => {
         const puppetMaster = new PuppetMaster_1.default(userId);
         const userDeck = room.users[userId].deck;
-        console.log("USER DECK ===", room.users[userId]);
         if (userDeck && userDeck.length > 0) {
             puppetMaster.setDeck(userDeck);
         }

@@ -99,9 +99,14 @@ class PuppetMaster {
             const newZone = this.getZone(destination);
             newZone.push(card);
         }
-        const oldZone = this.getZone(location);
-        const cardIndex = oldZone.findIndex((card) => card.uuid === cardUuid);
-        oldZone.splice(cardIndex, 1);
+        if (location === "location") {
+            this.location = undefined;
+        }
+        else {
+            const oldZone = this.getZone(location);
+            const cardIndex = oldZone.findIndex((card) => card.uuid === cardUuid);
+            oldZone.splice(cardIndex, 1);
+        }
         return true;
     }
     discardHand() {
