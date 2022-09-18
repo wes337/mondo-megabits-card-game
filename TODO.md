@@ -20,6 +20,8 @@ A general list of things left to do.
 
 ## Front End
 * Preload/cache card images
+* Use TypeScript
+* Figure out how to get env vars working with Vite. I am manually changing the WS server URI right now, but it should set it based on the Node environment
 * More styles from cards
 * General UI improvements, layout changes
 * Create a single re-usable modal component which can be opened/closed through global state
