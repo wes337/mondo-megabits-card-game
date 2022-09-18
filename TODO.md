@@ -25,6 +25,7 @@ A general list of things left to do.
 * Create a single re-usable modal component which can be opened/closed through global state
 * Create more re-usable components (for example inputs)
 * Create hooks for functions that are used in multiple files
+* Win screen and lose screen
 
 
 ## Back End (Game related)
@@ -39,4 +40,15 @@ A general list of things left to do.
 	* Prevent attacking narrative if there is figurehead or active creatures
 * Untap all cards at start of turn
 * Allow seating of Figurehead creature in Think Tank
+* Better logging for the game, and way to print all game events to a readable human log
+
+
+## Long term
+* Add user sign-up/login (SSO)
+* Player emotes, avatars
+* Guided tutorials/demo games which teach you how to play
+* Only allow players to use cards they own (maybe?)
+* More animations, effects
+* Leaderboards
+
 
