@@ -21,6 +21,16 @@ export const getRandomCards = (amount: number) => {
   return shuffledCards.slice(0, amount);
 };
 
+export const getRandomCardsByType = (amount: number, type: CardType) => {
+  const cards = allCards.filter((card) => card.type === type);
+
+  const shuffledCards = [...cards].sort(() => {
+    return 0.5 - Math.random();
+  });
+
+  return shuffledCards.slice(0, amount);
+};
+
 export const createRandomDeck = (deckSize = 40): Deck => {
   const randomCards = getRandomCards(deckSize);
   const deck: Deck = [];

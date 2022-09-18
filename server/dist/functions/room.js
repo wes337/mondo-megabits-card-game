@@ -75,8 +75,8 @@ const getUsersInRoom = (roomCode) => {
     if (!room) {
         return [];
     }
-    const users = Object.entries(room.users).map(([id, { name, status }]) => {
-        return { id, name, status };
+    const users = Object.entries(room.users).map(([id, { name, status, deck }]) => {
+        return { id, name, status, deck };
     });
     return users;
 };
@@ -106,6 +106,7 @@ const joinRoom = (userId, params) => {
         socket,
         name: lobby[userId].name,
         status: user_1.USER_STATUS.WAITING,
+        deck: lobby[userId].deck,
     };
     room.users = Object.assign(Object.assign({}, room.users), { [userId]: user });
     room.status = (0, exports.getRoomStatus)(room);

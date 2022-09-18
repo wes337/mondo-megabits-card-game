@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.start = exports.createAndStartGame = exports.createGame = exports.startGame = exports.leaveGame = exports.play = exports.tap = exports.target = exports.move = exports.endTurn = exports.getGameAndRoomUserIsIn = exports.updateGame = void 0;
+const card_1 = require("../utils/card");
 const room_1 = require("./room");
 const lobby_1 = require("../ws/lobby");
 const room_2 = require("../ws/room");
@@ -168,7 +169,17 @@ const createGame = (userId) => {
         (0, exports.createGame)(userId);
         return;
     }
-    const puppetMasters = Object.keys(room.users).map((userId) => new PuppetMaster_1.default(userId));
+    const puppetMasters = Object.keys(room.users).map((userId) => {
+        const puppetMaster = new PuppetMaster_1.default(userId);
+        const userDeck = room.users[userId].deck;
+        if (userDeck && userDeck.length > 0) {
+            puppetMaster.setDeck(userDeck);
+        }
+        else {
+            puppetMaster.deck = (0, card_1.createRandomDeck)(40);
+        }
+        return puppetMaster;
+    });
     const game = new Game_1.default(gameId, [...puppetMasters]);
     return game;
 };

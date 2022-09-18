@@ -12,4 +12,5 @@ export interface User {
   id: string;
   name: string;
   status?: UserStatus;
+  deck?: string[];
 }

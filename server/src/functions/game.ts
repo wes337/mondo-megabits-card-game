@@ -1,3 +1,4 @@
+import { createRandomDeck } from "../utils/card";
 import { getUsersInRoom, getRoomStatus, getRoomUserIsIn } from "./room";
 import { sendLobbyInfo } from "../ws/lobby";
 import { messageRoom } from "../ws/room";
@@ -206,9 +207,18 @@ export const createGame = (userId) => {
     return;
   }
 
-  const puppetMasters = Object.keys(room.users).map(
-    (userId) => new PuppetMaster(userId)
-  );
+  const puppetMasters = Object.keys(room.users).map((userId) => {
+    const puppetMaster = new PuppetMaster(userId);
+
+    const userDeck = room.users[userId].deck;
+    if (userDeck && userDeck.length > 0) {
+      puppetMaster.setDeck(userDeck);
+    } else {
+      puppetMaster.deck = createRandomDeck(40);
+    }
+
+    return puppetMaster;
+  });
 
   const game = new Game(gameId, [...puppetMasters]);
 

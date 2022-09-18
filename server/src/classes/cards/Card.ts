@@ -10,18 +10,21 @@ import PlotTwist from "./PlotTwist";
 import Skill from "./Skill";
 import Tactic from "./Tactic";
 
-export type CardType =
-  | "Creature"
-  | "Item"
-  | "Location"
-  | "Tactic"
-  | "Agenda"
-  | "Plot Twist"
-  | "Buff"
-  | "Information"
-  | "Challenge"
-  | "Skill"
-  | "Group";
+export const cardTypes = [
+  "Creature",
+  "Item",
+  "Location",
+  "Tactic",
+  "Agenda",
+  "Plot Twist",
+  "Buff",
+  "Information",
+  "Challenge",
+  "Skill",
+  "Group",
+] as const;
+
+export type CardType = typeof cardTypes[number];
 
 export type AnyCard =
   | Card

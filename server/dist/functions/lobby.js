@@ -12,9 +12,9 @@ const getUsersInLobby = () => {
 };
 exports.getUsersInLobby = getUsersInLobby;
 const joinLobby = (userId, socket, params) => {
-    const { userName } = params;
+    const { userName, deck } = params;
     const lobby = (0, data_1.getLobby)();
-    lobby[userId] = { socket, id: userId, name: userName.slice(0, 30) };
+    lobby[userId] = { socket, id: userId, name: userName.slice(0, 30), deck };
     (0, lobby_1.sendLobbyInfo)();
 };
 exports.joinLobby = joinLobby;

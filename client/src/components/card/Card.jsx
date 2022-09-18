@@ -1,11 +1,13 @@
 import { Show } from "solid-js";
+import CardBack from "../../assets/card-back.png";
+import useCardSpotlight from "../../hooks/useCardSpotlight";
 import { getCardImageById } from "../../utils";
 import useStore from "../../store";
-import CardBack from "../../assets/card-back.png";
 import "./Card.scss";
 
 function Card(props) {
   const { state, setState, sendMessage } = useStore();
+  const cardSpotlight = useCardSpotlight();
   const cardIsOnBoard = [
     "battle-zone",
     "the-think-tank",
@@ -13,7 +15,7 @@ function Card(props) {
   ].includes(props.location);
   const cardIsInHand = ["look-hand", "stowed-hand"].includes(props.location);
   const faceDown = (cardIsInHand && props.opponent) || props.card.faceDown;
-  const canExpand = !cardIsInHand && !(faceDown && props.opponent);
+  const canSpotlight = !cardIsInHand && !(faceDown && props.opponent);
   const canTargetFrom = !props.opponent && !cardIsInHand;
 
   const setTargetFromCard = (event) => {
@@ -150,14 +152,9 @@ function Card(props) {
     }
   };
 
-  const expandCard = (event) => {
+  const spotlightCard = (event) => {
     event.stopPropagation();
-    setState((state) => ({
-      focus: {
-        ...state.focus,
-        spotlight: props.card,
-      },
-    }));
+    cardSpotlight.open(props.card);
   };
 
   const cardClassName = () => {
@@ -188,8 +185,8 @@ function Card(props) {
       draggable
     >
       <div class="card-actions">
-        <Show when={canExpand}>
-          <button class="card-action-button" onClick={expandCard}>
+        <Show when={canSpotlight}>
+          <button class="card-action-button" onClick={spotlightCard}>
             ⇱
           </button>
         </Show>

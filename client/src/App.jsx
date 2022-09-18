@@ -1,39 +1,65 @@
-import { createMemo, Show } from "solid-js";
+import { createMemo, Switch, Match } from "solid-js";
+import useDeviceOrientation from "./hooks/useDeviceOrientation";
 import useStore from "./store";
 import Connect from "./components/layout/Connect";
 import Lobby from "./components/layout/Lobby";
 import Room from "./components/layout/Room";
 import GameBoard from "./components/game/GameBoard";
-import CardTarget from "./components/card/CardTarget";
+import DeckBuilder from "./components/layout/DeckBuilder";
 import "./App.scss";
 
 function App() {
+  const deviceOrientation = useDeviceOrientation();
   const { state } = useStore();
 
-  screen?.orientation?.lock?.("landscape");
+  const screenToShow = createMemo(() => {
+    const inDeckBuilder = state.deck.open;
+    if (inDeckBuilder) {
+      return "deck";
+    }
 
-  const userIsInLobbyOrRoom = createMemo(
-    () =>
-      !!state.room || !!state.lobby.find((user) => user.id === state.user.id)
-  );
+    const inLobby = !!state.lobby.find((user) => user.id === state.user.id);
+    if (inLobby) {
+      return "lobby";
+    }
+
+    const inGame = !!state.game;
+    if (inGame) {
+      return "game";
+    }
+
+    const inRoom = !!state.room;
+    if (inRoom) {
+      return "room";
+    }
+
+    return null;
+  });
 
   return (
     <>
-      <div class="app">
-        <Show when={userIsInLobbyOrRoom()} fallback={<Connect />}>
-          <Show when={state.game}>
+      <div class={`app${deviceOrientation() === "portrait" ? " hide" : ""}`}>
+        <Switch fallback={<Connect />}>
+          <Match when={screenToShow() === "deck"}>
+            <DeckBuilder />
+          </Match>
+          <Match when={screenToShow() === "game"}>
             <GameBoard />
-          </Show>
-          <Show when={state.room && !state.game}>
+          </Match>
+          <Match when={screenToShow() === "room"}>
             <Room />
-          </Show>
-          <Show when={!state.room && !state.game}>
+          </Match>
+          <Match when={screenToShow() === "lobby"}>
             <Lobby />
-          </Show>
-        </Show>
-        {/* <CardTarget /> */}
+          </Match>
+        </Switch>
       </div>
-      <div class="orientation">
+      <div
+        class={`orientation${
+          deviceOrientation() === "portrait" ? " show" : ""
+        }`}
+      >
+        <img src="images/icons/mobile.svg" width={64} height={64} />
         <h3>Please turn your device sideways to landscape mode.</h3>
       </div>
     </>

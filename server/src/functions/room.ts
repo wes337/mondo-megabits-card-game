@@ -88,9 +88,11 @@ export const getUsersInRoom = (roomCode) => {
     return [];
   }
 
-  const users = Object.entries(room.users).map(([id, { name, status }]) => {
-    return { id, name, status };
-  });
+  const users = Object.entries(room.users).map(
+    ([id, { name, status, deck }]) => {
+      return { id, name, status, deck };
+    }
+  );
 
   return users;
 };
@@ -127,6 +129,7 @@ export const joinRoom = (userId, params) => {
     socket,
     name: lobby[userId].name,
     status: USER_STATUS.WAITING,
+    deck: lobby[userId].deck,
   } as User;
 
   room.users = {

@@ -1,4 +1,3 @@
-import { createRandomDeck } from "../utils/card";
 import PuppetMaster from "./PuppetMaster";
 import { Card, Challenge, Location } from "./cards";
 import {
@@ -121,10 +120,6 @@ class Game {
     this.nextTurn();
 
     this.puppetMasters.forEach((puppetMaster, index) => {
-      // Give random 40 cards
-      const randomDeck = createRandomDeck(40);
-      puppetMaster.setDeck(randomDeck);
-
       puppetMaster.shuffleDeck();
 
       // Player 1 draws 7, Player 2 draws 10

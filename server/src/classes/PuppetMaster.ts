@@ -1,5 +1,18 @@
+import { getCardById } from "../functions/card";
 import { hyphenToCamelCase } from "../utils/string";
-import Card from "./cards/Card";
+import {
+  Creature,
+  Challenge,
+  Buff,
+  Group,
+  Information,
+  Item,
+  PlotTwist,
+  Skill,
+  Tactic,
+  Location,
+} from "./cards";
+import Card, { CardType } from "./cards/Card";
 import {
   MAX_COPIES_OF_CARD_PER_DECK,
   MAX_FUNDING,
@@ -42,29 +55,22 @@ class PuppetMaster {
     };
   }
 
-  isDeckValid(cards: Card[]): boolean {
-    const cardCounts = cards.reduce((counts, card) => {
-      counts[card.id] = ++counts[card.id] || 1;
+  getCardCount(key = "id"): {
+    [value: string]: number;
+  } {
+    const cardCounts = this.deck.reduce((counts, card) => {
+      const cardKey = card[key];
+      counts[cardKey] = ++counts[cardKey] || 1;
       return counts;
-    }, {}) as {
-      [cardId: string]: number;
-    };
+    }, {});
 
-    const cardsExceedingLimit = Object.values(cardCounts).filter(
-      (count) => count > MAX_COPIES_OF_CARD_PER_DECK
-    );
-
-    return cardsExceedingLimit.length === 0;
+    return cardCounts;
   }
 
-  setDeck(cards: Card[]) {
-    const isValidDeck = this.isDeckValid(cards);
-    if (!isValidDeck) {
-      console.log("=== INVALID DECK !!! ===");
-      return;
-    }
-
-    this.deck = cards;
+  setDeck(cardIds: string[]) {
+    cardIds.forEach((cardId) => {
+      this.addCard(cardId);
+    });
   }
 
   getZone(zoneName: GameZone): Card[] {
@@ -265,6 +271,166 @@ class PuppetMaster {
     }
 
     return null;
+  }
+
+  addCard(cardId: string | number): void {
+    const cardCounts = this.getCardCount();
+    if (cardCounts[cardId] > MAX_COPIES_OF_CARD_PER_DECK) {
+      return;
+    }
+
+    const card = getCardById(cardId);
+
+    if (!card) {
+      return;
+    }
+
+    switch (card.type as CardType) {
+      case "Creature": {
+        this.deck.push(
+          new Creature(
+            card.id,
+            card.name,
+            card.bodyText,
+            card.faction,
+            card.rarity,
+            2 + Math.floor(card.rarity / 2),
+            card.subtype,
+            card.stats
+          )
+        );
+        break;
+      }
+      case "Challenge": {
+        this.deck.push(
+          new Challenge(
+            card.id,
+            card.name,
+            card.bodyText,
+            card.faction,
+            card.rarity,
+            0,
+            card.subtype
+          )
+        );
+        break;
+      }
+      case "Buff": {
+        this.deck.push(
+          new Buff(
+            card.id,
+            card.name,
+            card.bodyText,
+            card.faction,
+            card.rarity,
+            2,
+            card.subtype
+          )
+        );
+        break;
+      }
+      case "Group": {
+        this.deck.push(
+          new Group(
+            card.id,
+            card.name,
+            card.bodyText,
+            card.faction,
+            3,
+            card.rarity,
+            card.subtype
+          )
+        );
+        break;
+      }
+      case "Information": {
+        this.deck.push(
+          new Information(
+            card.id,
+            card.name,
+            card.bodyText,
+            card.faction,
+            card.rarity,
+            0,
+            card.subtype
+          )
+        );
+        break;
+      }
+      case "Item": {
+        this.deck.push(
+          new Item(
+            card.id,
+            card.name,
+            card.bodyText,
+            card.faction,
+            card.rarity,
+            2,
+            card.subtype
+          )
+        );
+        break;
+      }
+      case "Location": {
+        this.deck.push(
+          new Location(
+            card.id,
+            card.name,
+            card.bodyText,
+            card.faction,
+            card.rarity,
+            0,
+            card.subtype
+          )
+        );
+        break;
+      }
+      case "Plot Twist": {
+        this.deck.push(
+          new PlotTwist(
+            card.id,
+            card.name,
+            card.bodyText,
+            card.faction,
+            card.rarity,
+            0,
+            card.subtype
+          )
+        );
+        break;
+      }
+      case "Skill": {
+        this.deck.push(
+          new Skill(
+            card.id,
+            card.name,
+            card.bodyText,
+            card.faction,
+            card.rarity,
+            1,
+            card.subtype
+          )
+        );
+        break;
+      }
+      case "Tactic": {
+        this.deck.push(
+          new Tactic(
+            card.id,
+            card.name,
+            card.bodyText,
+            card.faction,
+            card.rarity,
+            2,
+            card.subtype
+          )
+        );
+        break;
+      }
+      default: {
+        break;
+      }
+    }
   }
 }
 

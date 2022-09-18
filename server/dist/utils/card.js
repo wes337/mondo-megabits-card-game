@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createRandomDeck = exports.getRandomCards = void 0;
+exports.createRandomDeck = exports.getRandomCardsByType = exports.getRandomCards = void 0;
 const cards_1 = require("../classes/cards");
 const data_1 = require("../data");
 const getRandomCards = (amount) => {
@@ -10,6 +10,14 @@ const getRandomCards = (amount) => {
     return shuffledCards.slice(0, amount);
 };
 exports.getRandomCards = getRandomCards;
+const getRandomCardsByType = (amount, type) => {
+    const cards = data_1.allCards.filter((card) => card.type === type);
+    const shuffledCards = [...cards].sort(() => {
+        return 0.5 - Math.random();
+    });
+    return shuffledCards.slice(0, amount);
+};
+exports.getRandomCardsByType = getRandomCardsByType;
 const createRandomDeck = (deckSize = 40) => {
     const randomCards = (0, exports.getRandomCards)(deckSize);
     const deck = [];

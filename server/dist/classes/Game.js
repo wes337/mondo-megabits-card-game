@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const card_1 = require("../utils/card");
 const constants_1 = require("./constants");
 class Game {
     constructor(id, puppetMasters) {
@@ -64,8 +63,6 @@ class Game {
         });
         this.nextTurn();
         this.puppetMasters.forEach((puppetMaster, index) => {
-            const randomDeck = (0, card_1.createRandomDeck)(40);
-            puppetMaster.setDeck(randomDeck);
             puppetMaster.shuffleDeck();
             const numberOfCardsToDraw = index === 0
                 ? constants_1.INITIAL_HAND_SIZE.PLAYER_ONE
