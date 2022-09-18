@@ -1,25 +1,16 @@
-import PuppetMaster from "./PuppetMaster";
-import { Challenge, Location } from "./cards";
+import { User } from "../types/user";
+import { RoomStatus } from "../types/room";
+import Game from "./Game";
 
 class Room {
-  uuid: string;
-  turn: {
-    number: number;
-    player?: PuppetMaster;
-  };
-  puppetMasters: PuppetMaster[];
-  location?: Location;
-  challenges: Challenge[];
+  code: string;
+  users: User[];
+  status: RoomStatus;
+  game?: Game;
 
-  constructor(uuid, puppetMasters) {
-    this.uuid = uuid;
-    this.puppetMasters = puppetMasters;
-    this.location = undefined;
-    this.challenges = [];
-    this.turn = {
-      number: -1,
-      player: undefined,
-    };
+  constructor(code, users) {
+    this.code = code;
+    this.users = users;
   }
 }
 
