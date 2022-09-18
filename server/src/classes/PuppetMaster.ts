@@ -12,7 +12,7 @@ import {
   Tactic,
   Location,
 } from "./cards";
-import Card, { CardType } from "./cards/Card";
+import Card, { AnyCard, CardType } from "./cards/Card";
 import {
   MAX_COPIES_OF_CARD_PER_DECK,
   MAX_FUNDING,
@@ -36,6 +36,7 @@ class PuppetMaster {
     bufferZone: Card[]; // facedown 1 tactic, 1 creature (patsy double|agent|bad actor), 1 challenge. played all at once when front lines breached, all discarded after played
     battleZone: Card[]; // all active cards go here
   };
+  location?: Location;
   funding: number; // max of 20, restored at 4 per turn (after first turn)
 
   constructor(userId: string) {
@@ -53,6 +54,7 @@ class PuppetMaster {
       bufferZone: [], // Tactic, creature, challenge only
       battleZone: [],
     };
+    this.location = undefined;
   }
 
   getCardCount(key = "id"): {
@@ -82,7 +84,7 @@ class PuppetMaster {
       return this.hand.stowed;
     }
 
-    if (["deck", "discard-pile"].includes(zoneName)) {
+    if (["deck", "discard-pile", "location"].includes(zoneName)) {
       return this[hyphenToCamelCase(zoneName)];
     }
 
@@ -117,13 +119,13 @@ class PuppetMaster {
     this.hand.look.push(...cards);
   }
 
-  tapCard(cardUuid: string) {
+  tapCard(cardUuid: string): boolean {
     const cardAndLocation = this.findCardByUuid(cardUuid);
 
     // Card does not exist, or player
     // does not have this card
     if (!cardAndLocation) {
-      return;
+      return false;
     }
 
     const { card, location } = cardAndLocation;
@@ -134,36 +136,42 @@ class PuppetMaster {
       "buffer-zone",
     ].includes(location);
     if (!cardIsOnBoard) {
-      return;
+      return false;
     }
 
     card.tapped = !card.tapped;
+    return true;
   }
 
-  moveCard(cardUuid: string, destination: GameZone) {
+  moveCard(cardUuid: string, destination: GameZone): boolean {
     const cardAndLocation = this.findCardByUuid(cardUuid);
 
     // Card does not exist, or player
     // does not have this card
     if (!cardAndLocation) {
-      return;
+      return false;
     }
 
     const { card, location } = cardAndLocation;
 
     // Card is already in requested destination
     if (location === destination) {
-      return;
+      return false;
     }
 
     // Move card to new location
-    const newZone = this.getZone(destination);
-    newZone.push(card);
+    if (destination === "location") {
+      this.location = card as Location;
+    } else {
+      const newZone = this.getZone(destination);
+      newZone.push(card);
+    }
 
     // Remove card from old location
     const oldZone = this.getZone(location);
     const cardIndex = oldZone.findIndex((card) => card.uuid === cardUuid);
     oldZone.splice(cardIndex, 1);
+    return true;
   }
 
   discardHand() {
@@ -171,20 +179,20 @@ class PuppetMaster {
     this.hand.look = [];
   }
 
-  playCard(cardUuid: string, destination: GameZone): void {
+  playCard(cardUuid: string, destination: GameZone): boolean {
     const cardAndLocation = this.findCardByUuid(cardUuid);
 
     // Card does not exist, or player
     // does not have this card
     if (!cardAndLocation) {
-      return;
+      return false;
     }
 
     const { card, location } = cardAndLocation;
 
     // Card is already in requested destination
     if (location === destination) {
-      return;
+      return false;
     }
 
     // Check if user can pay for card
@@ -193,15 +201,20 @@ class PuppetMaster {
     const cantAfford = this.funding - cost < 0;
 
     if (cantAfford) {
-      return;
+      return false;
+    }
+
+    if (destination === "location" && (card as Location).type !== "Location") {
+      return false;
     }
 
     this.funding = this.funding - cost;
-    this.moveCard(cardUuid, destination);
+    const cardMoved = this.moveCard(cardUuid, destination);
+    return cardMoved;
   }
 
   findCardByUuid(cardUuid: string): {
-    card: Card;
+    card: AnyCard;
     location: GameZone;
   } | null {
     const cardInLookHand = this.hand.look.find(({ uuid }) => uuid === cardUuid);
@@ -270,19 +283,28 @@ class PuppetMaster {
       };
     }
 
+    const cardInLocation =
+      this.location?.uuid === cardUuid ? this.location : null;
+    if (cardInLocation) {
+      return {
+        card: cardInLocation,
+        location: "location",
+      };
+    }
+
     return null;
   }
 
-  addCard(cardId: string | number): void {
+  addCard(cardId: string | number): boolean {
     const cardCounts = this.getCardCount();
     if (cardCounts[cardId] > MAX_COPIES_OF_CARD_PER_DECK) {
-      return;
+      return false;
     }
 
     const card = getCardById(cardId);
 
     if (!card) {
-      return;
+      return false;
     }
 
     switch (card.type as CardType) {
@@ -431,6 +453,8 @@ class PuppetMaster {
         break;
       }
     }
+
+    return true;
   }
 }
 

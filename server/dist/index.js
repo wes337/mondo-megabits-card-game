@@ -39,7 +39,7 @@ webSocketServer.on("connection", (socket) => {
                     (0, lobby_1.joinLobby)(userId, socket, params);
                     break;
                 case messages_1.MESSAGE_TYPES.CREATE:
-                    (0, room_1.createRoom)(userId);
+                    (0, room_1.createRoom)(userId, params);
                     break;
                 case messages_1.MESSAGE_TYPES.JOIN:
                     (0, room_1.joinRoom)(userId, params);

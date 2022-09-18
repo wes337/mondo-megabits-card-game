@@ -133,26 +133,14 @@ export const play = (userId, params) => {
     return;
   }
 
+  const userIsInRoom = room.users[userId];
+  if (!userIsInRoom) {
+    return;
+  }
+
   const { cardUuid, destination } = params;
 
-  const puppetMaster = game.getPlayer(userId);
-  const userIsInRoom = room.users[userId];
-  if (!puppetMaster || !userIsInRoom) {
-    return;
-  }
-
-  // Check if user is allowed to play this card
-  const isAllowedToPlayCard = game.isPlayersTurn(userId);
-  if (!isAllowedToPlayCard) {
-    return;
-  }
-
-  puppetMaster.playCard(cardUuid, destination);
-  game.addLog({
-    event: "play-card",
-    sourceUserId: puppetMaster.id,
-    card: cardUuid,
-  });
+  game.play(userId, cardUuid, destination);
   updateGame(game);
 };
 

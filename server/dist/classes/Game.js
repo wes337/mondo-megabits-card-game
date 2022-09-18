@@ -27,7 +27,7 @@ class Game {
         const number = this.turn.number + 1;
         this.turn = {
             number,
-            player: (this.puppetMasters[number % 2 === 0 ? 0 : 1] || this.puppetMasters[0]).id,
+            player: (this.puppetMasters[number % 2 !== 0 ? 0 : 1] || this.puppetMasters[0]).id,
         };
     }
     endTurn() {
@@ -76,6 +76,32 @@ class Game {
     getPlayer(userId) {
         const puppetMaster = this.puppetMasters.find(({ id }) => id === userId);
         return puppetMaster;
+    }
+    play(userId, cardUuid, destination) {
+        const isAllowedToPlayCard = this.isPlayersTurn(userId);
+        if (!isAllowedToPlayCard) {
+            return;
+        }
+        const puppetMaster = this.getPlayer(userId);
+        if (!puppetMaster) {
+            return;
+        }
+        const cardWasPlayed = puppetMaster.playCard(cardUuid, destination);
+        if (!cardWasPlayed) {
+            return;
+        }
+        if (destination === "location") {
+            if (this.location) {
+                const otherPuppetMaster = this.puppetMasters.find(({ id }) => id !== userId);
+                otherPuppetMaster === null || otherPuppetMaster === void 0 ? void 0 : otherPuppetMaster.moveCard(this.location.uuid, "discard-pile");
+            }
+            this.location = puppetMaster.location;
+        }
+        this.addLog({
+            event: "play-card",
+            sourceUserId: puppetMaster.id,
+            card: cardUuid,
+        });
     }
 }
 exports.default = Game;

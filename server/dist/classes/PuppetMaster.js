@@ -20,6 +20,7 @@ class PuppetMaster {
             bufferZone: [],
             battleZone: [],
         };
+        this.location = undefined;
     }
     getCardCount(key = "id") {
         const cardCounts = this.deck.reduce((counts, card) => {
@@ -41,7 +42,7 @@ class PuppetMaster {
         if (zoneName === "stowed-hand") {
             return this.hand.stowed;
         }
-        if (["deck", "discard-pile"].includes(zoneName)) {
+        if (["deck", "discard-pile", "location"].includes(zoneName)) {
             return this[(0, string_1.hyphenToCamelCase)(zoneName)];
         }
         return this.board[(0, string_1.hyphenToCamelCase)(zoneName)];
@@ -68,7 +69,7 @@ class PuppetMaster {
     tapCard(cardUuid) {
         const cardAndLocation = this.findCardByUuid(cardUuid);
         if (!cardAndLocation) {
-            return;
+            return false;
         }
         const { card, location } = cardAndLocation;
         const cardIsOnBoard = [
@@ -77,24 +78,31 @@ class PuppetMaster {
             "buffer-zone",
         ].includes(location);
         if (!cardIsOnBoard) {
-            return;
+            return false;
         }
         card.tapped = !card.tapped;
+        return true;
     }
     moveCard(cardUuid, destination) {
         const cardAndLocation = this.findCardByUuid(cardUuid);
         if (!cardAndLocation) {
-            return;
+            return false;
         }
         const { card, location } = cardAndLocation;
         if (location === destination) {
-            return;
+            return false;
         }
-        const newZone = this.getZone(destination);
-        newZone.push(card);
+        if (destination === "location") {
+            this.location = card;
+        }
+        else {
+            const newZone = this.getZone(destination);
+            newZone.push(card);
+        }
         const oldZone = this.getZone(location);
         const cardIndex = oldZone.findIndex((card) => card.uuid === cardUuid);
         oldZone.splice(cardIndex, 1);
+        return true;
     }
     discardHand() {
         this.discardPile.push(...this.hand.look);
@@ -103,21 +111,26 @@ class PuppetMaster {
     playCard(cardUuid, destination) {
         const cardAndLocation = this.findCardByUuid(cardUuid);
         if (!cardAndLocation) {
-            return;
+            return false;
         }
         const { card, location } = cardAndLocation;
         if (location === destination) {
-            return;
+            return false;
         }
         const cost = destination === "stowed-hand" ? constants_1.STOW_CARD_FUNDING_COST : card.cost;
         const cantAfford = this.funding - cost < 0;
         if (cantAfford) {
-            return;
+            return false;
+        }
+        if (destination === "location" && card.type !== "Location") {
+            return false;
         }
         this.funding = this.funding - cost;
-        this.moveCard(cardUuid, destination);
+        const cardMoved = this.moveCard(cardUuid, destination);
+        return cardMoved;
     }
     findCardByUuid(cardUuid) {
+        var _a;
         const cardInLookHand = this.hand.look.find(({ uuid }) => uuid === cardUuid);
         if (cardInLookHand) {
             return {
@@ -167,16 +180,23 @@ class PuppetMaster {
                 location: "the-think-tank",
             };
         }
+        const cardInLocation = ((_a = this.location) === null || _a === void 0 ? void 0 : _a.uuid) === cardUuid ? this.location : null;
+        if (cardInLocation) {
+            return {
+                card: cardInLocation,
+                location: "location",
+            };
+        }
         return null;
     }
     addCard(cardId) {
         const cardCounts = this.getCardCount();
         if (cardCounts[cardId] > constants_1.MAX_COPIES_OF_CARD_PER_DECK) {
-            return;
+            return false;
         }
         const card = (0, card_1.getCardById)(cardId);
         if (!card) {
-            return;
+            return false;
         }
         switch (card.type) {
             case "Creature": {
@@ -223,6 +243,7 @@ class PuppetMaster {
                 break;
             }
         }
+        return true;
     }
 }
 exports.default = PuppetMaster;

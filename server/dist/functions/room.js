@@ -88,7 +88,7 @@ const getRoomStatus = (room) => {
 };
 exports.getRoomStatus = getRoomStatus;
 const joinRoom = (userId, params) => {
-    const { roomCode } = params;
+    const { roomCode, deck } = params;
     const room = (0, exports.getRoomByCode)(roomCode);
     if (!room) {
         console.warn(`Room ${roomCode} does not exist!`);
@@ -106,7 +106,7 @@ const joinRoom = (userId, params) => {
         socket,
         name: lobby[userId].name,
         status: user_1.USER_STATUS.WAITING,
-        deck: lobby[userId].deck,
+        deck: deck || lobby[userId].deck,
     };
     room.users = Object.assign(Object.assign({}, room.users), { [userId]: user });
     room.status = (0, exports.getRoomStatus)(room);
@@ -119,11 +119,11 @@ const joinRoom = (userId, params) => {
     (0, room_1.messageRoomAsSystem)(roomCode, `${user.name} joined the room`);
 };
 exports.joinRoom = joinRoom;
-const createRoom = (userId) => {
+const createRoom = (userId, params) => {
     const roomCode = (0, string_1.generateKey)(5);
     const rooms = (0, data_1.getRooms)();
     if (rooms[roomCode]) {
-        (0, exports.createRoom)(userId);
+        (0, exports.createRoom)(userId, params);
         return;
     }
     rooms[roomCode] = {
@@ -132,7 +132,7 @@ const createRoom = (userId) => {
         code: roomCode,
     };
     console.log("=== CREATED ROOM ===");
-    (0, exports.joinRoom)(userId, { roomCode });
+    (0, exports.joinRoom)(userId, Object.assign(Object.assign({}, params), { roomCode }));
 };
 exports.createRoom = createRoom;
 const leaveRoom = (userId) => {

@@ -112,22 +112,12 @@ const play = (userId, params) => {
     if (!room || !game) {
         return;
     }
-    const { cardUuid, destination } = params;
-    const puppetMaster = game.getPlayer(userId);
     const userIsInRoom = room.users[userId];
-    if (!puppetMaster || !userIsInRoom) {
+    if (!userIsInRoom) {
         return;
     }
-    const isAllowedToPlayCard = game.isPlayersTurn(userId);
-    if (!isAllowedToPlayCard) {
-        return;
-    }
-    puppetMaster.playCard(cardUuid, destination);
-    game.addLog({
-        event: "play-card",
-        sourceUserId: puppetMaster.id,
-        card: cardUuid,
-    });
+    const { cardUuid, destination } = params;
+    game.play(userId, cardUuid, destination);
     (0, exports.updateGame)(game);
 };
 exports.play = play;
@@ -172,6 +162,7 @@ const createGame = (userId) => {
     const puppetMasters = Object.keys(room.users).map((userId) => {
         const puppetMaster = new PuppetMaster_1.default(userId);
         const userDeck = room.users[userId].deck;
+        console.log("USER DECK ===", room.users[userId]);
         if (userDeck && userDeck.length > 0) {
             puppetMaster.setDeck(userDeck);
         }

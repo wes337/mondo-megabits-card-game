@@ -14,7 +14,8 @@ export type GameZone =
   | "discard-pile"
   | "the-think-tank"
   | "buffer-zone"
-  | "battle-zone";
+  | "battle-zone"
+  | "location";
 
 export type GameLog = {
   turn: number;
@@ -64,7 +65,7 @@ class Game {
     this.turn = {
       number,
       player: (
-        this.puppetMasters[number % 2 === 0 ? 0 : 1] || this.puppetMasters[0]
+        this.puppetMasters[number % 2 !== 0 ? 0 : 1] || this.puppetMasters[0]
       ).id,
     };
   }
@@ -139,6 +140,43 @@ class Game {
   getPlayer(userId: string): PuppetMaster | undefined {
     const puppetMaster = this.puppetMasters.find(({ id }) => id === userId);
     return puppetMaster;
+  }
+
+  play(userId, cardUuid, destination) {
+    // Check if user is allowed to play this card
+    const isAllowedToPlayCard = this.isPlayersTurn(userId);
+    if (!isAllowedToPlayCard) {
+      return;
+    }
+
+    const puppetMaster = this.getPlayer(userId);
+    if (!puppetMaster) {
+      return;
+    }
+
+    const cardWasPlayed = puppetMaster.playCard(cardUuid, destination);
+
+    if (!cardWasPlayed) {
+      return;
+    }
+
+    if (destination === "location") {
+      if (this.location) {
+        // if another location in play, it is discarded
+        const otherPuppetMaster = this.puppetMasters.find(
+          ({ id }) => id !== userId
+        );
+        otherPuppetMaster?.moveCard(this.location.uuid, "discard-pile");
+      }
+
+      this.location = puppetMaster.location;
+    }
+
+    this.addLog({
+      event: "play-card",
+      sourceUserId: puppetMaster.id,
+      card: cardUuid,
+    });
   }
 }
 

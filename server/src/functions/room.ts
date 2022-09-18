@@ -104,7 +104,7 @@ export const getRoomStatus = (room) => {
 };
 
 export const joinRoom = (userId, params) => {
-  const { roomCode } = params;
+  const { roomCode, deck } = params;
   const room = getRoomByCode(roomCode);
 
   if (!room) {
@@ -129,7 +129,7 @@ export const joinRoom = (userId, params) => {
     socket,
     name: lobby[userId].name,
     status: USER_STATUS.WAITING,
-    deck: lobby[userId].deck,
+    deck: deck || lobby[userId].deck,
   } as User;
 
   room.users = {
@@ -149,14 +149,14 @@ export const joinRoom = (userId, params) => {
   messageRoomAsSystem(roomCode, `${user.name} joined the room`);
 };
 
-export const createRoom = (userId) => {
+export const createRoom = (userId, params) => {
   const roomCode = generateKey(5);
 
   const rooms = getRooms();
 
   if (rooms[roomCode]) {
     // Duplicate ID
-    createRoom(userId);
+    createRoom(userId, params);
     return;
   }
 
@@ -167,7 +167,7 @@ export const createRoom = (userId) => {
   };
 
   console.log("=== CREATED ROOM ===");
-  joinRoom(userId, { roomCode });
+  joinRoom(userId, { ...params, roomCode });
 };
 
 export const leaveRoom = (userId) => {
