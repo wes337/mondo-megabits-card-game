@@ -5,7 +5,7 @@ A general list of things left to do.
 ## Deck builder
 
 - ~~Enforce 40 card minimum~~
-- Toggle modal to remind player if they have unsaved changes
+- ~~Confirmation modal to remind player if they have unsaved changes~~
 - General UI improvements
 - Add subtypes as filters
 - Add "Load" button, and way to have multiple decks saved per player
