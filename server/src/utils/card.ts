@@ -13,8 +13,12 @@ import {
 import { CardType, Deck } from "../classes/cards/Card";
 import { allCards } from "../data";
 
+export const allBasicCards = allCards.filter(
+  (card) => !card.fileStem.includes("a")
+);
+
 export const getRandomCards = (amount: number) => {
-  const shuffledCards = [...allCards].sort(() => {
+  const shuffledCards = [...allBasicCards].sort(() => {
     return 0.5 - Math.random();
   });
 
@@ -22,7 +26,7 @@ export const getRandomCards = (amount: number) => {
 };
 
 export const getRandomCardsByType = (amount: number, type: CardType) => {
-  const cards = allCards.filter((card) => card.type === type);
+  const cards = allBasicCards.filter((card) => card.type === type);
 
   const shuffledCards = [...cards].sort(() => {
     return 0.5 - Math.random();

@@ -4,21 +4,10 @@
 
 The server is currently hosted on [Heroku](https://mondo-megabits.herokuapp.com). The WebSocket Server can be reached at [wss://mondo-megabits.herokuapp.com](wss://mondo-megabits.herokuapp.com).
 
-To run locally, first install dependencies:
+To run locally, first install dependencies, then run the `dev` script:
 
 ```
 npm i
-```
-
-Then compile and watch for changes by running:
-
-```
-npm run watch
-```
-
-While the previous command is running, you can run:
-
-```
 npm run dev
 ```
 
