@@ -30,6 +30,7 @@ A general list of things left to do.
 - Create more re-usable components (for example inputs)
 - Create hooks for functions that are used in multiple files
 - Win screen and lose screen
+- Way to view discard pile, or spotlight many cards on the game board
 
 ## Back End (Game related)
 
