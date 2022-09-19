@@ -8,7 +8,7 @@ A general list of things left to do.
 - ~~Confirmation modal to remind player if they have unsaved changes~~
 - General UI improvements
 - Add subtypes as filters
-- Add "Load" button, and way to have multiple decks saved per player
+- ~~Add "Load" button, and way to have multiple decks saved per player~~
 - Save decks somewhere (local storage, db?)
 
 ## Lobby
@@ -17,7 +17,7 @@ A general list of things left to do.
 
 ## Room
 
-- Add deck selector
+- ~~Add deck selector~~
 
 ## Front End
 
