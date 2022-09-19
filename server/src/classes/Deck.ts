@@ -77,10 +77,10 @@ class Deck {
           new Creature(
             card.id,
             card.name,
+            undefined,
             card.bodyText,
             card.faction,
             card.rarity,
-            2 + Math.floor(card.rarity / 2),
             card.subtype,
             card.stats
           )
@@ -92,10 +92,10 @@ class Deck {
           new Challenge(
             card.id,
             card.name,
+            undefined,
             card.bodyText,
             card.faction,
             card.rarity,
-            0,
             card.subtype
           )
         );
@@ -106,10 +106,10 @@ class Deck {
           new Buff(
             card.id,
             card.name,
+            undefined,
             card.bodyText,
             card.faction,
             card.rarity,
-            2,
             card.subtype
           )
         );
@@ -120,9 +120,9 @@ class Deck {
           new Group(
             card.id,
             card.name,
+            undefined,
             card.bodyText,
             card.faction,
-            3,
             card.rarity,
             card.subtype
           )
@@ -134,10 +134,10 @@ class Deck {
           new Information(
             card.id,
             card.name,
+            undefined,
             card.bodyText,
             card.faction,
             card.rarity,
-            0,
             card.subtype
           )
         );
@@ -148,10 +148,10 @@ class Deck {
           new Item(
             card.id,
             card.name,
+            undefined,
             card.bodyText,
             card.faction,
             card.rarity,
-            2,
             card.subtype
           )
         );
@@ -162,10 +162,10 @@ class Deck {
           new Location(
             card.id,
             card.name,
+            undefined,
             card.bodyText,
             card.faction,
             card.rarity,
-            0,
             card.subtype
           )
         );
@@ -176,10 +176,10 @@ class Deck {
           new PlotTwist(
             card.id,
             card.name,
+            undefined,
             card.bodyText,
             card.faction,
             card.rarity,
-            0,
             card.subtype
           )
         );
@@ -190,10 +190,10 @@ class Deck {
           new Skill(
             card.id,
             card.name,
+            undefined,
             card.bodyText,
             card.faction,
             card.rarity,
-            1,
             card.subtype
           )
         );
@@ -204,10 +204,10 @@ class Deck {
           new Tactic(
             card.id,
             card.name,
+            undefined,
             card.bodyText,
             card.faction,
             card.rarity,
-            2,
             card.subtype
           )
         );

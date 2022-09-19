@@ -1,23 +1,26 @@
-import Card, { CardType } from "./Card";
+import Card, { CARD_TYPE } from "./Card";
 import Creature from "./Creature";
 
-export type BuffSubType =
-  | "Enhancement"
-  | "Feather-in-Cap"
-  | "Power-Up"
-  | "X-Factor";
+export const BUFF_SUBTYPE = {
+  ENHANCEMENT: "Enhancement",
+  FEATHER_IN_CAP: "Feather-in-Cap",
+  POWER_UP: "Power-Up",
+  X_FACTOR: "X-Factor",
+} as const;
+
+const buffSubtypes = Object.values(BUFF_SUBTYPE);
+export type BuffSubtype = typeof buffSubtypes[number];
 
 class Buff extends Card {
-  type: CardType;
-  subType: BuffSubType;
+  subtype: BuffSubtype;
   attachedTo?: Creature;
 
-  constructor(id, name, bodyText, faction, rarity, cost, subType) {
-    super(id, name, bodyText, faction, rarity, cost);
-    this.type = "Buff";
-    this.subType = subType;
-    this.cost = cost;
+  constructor(id, name, owner, bodyText, faction, rarity, subtype) {
+    super(id, name, owner, bodyText, faction, rarity);
+    this.type = CARD_TYPE.BUFF;
+    this.subtype = subtype;
     this.attachedTo = undefined;
+    this.cost = 2;
   }
 }
 

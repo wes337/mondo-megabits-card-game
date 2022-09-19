@@ -1,16 +1,20 @@
-import Card, { CardType } from "./Card";
+import Card, { CARD_TYPE } from "./Card";
 
-export type ChallengeSubType = "Tutorial Mission" | "";
+export const CHALLENGE_SUBTYPE = {
+  TUTORIAL_MISSION: "Tutorial Mission",
+} as const;
+
+const challengeSubtypes = Object.values(CHALLENGE_SUBTYPE);
+export type ChallengeSubtype = typeof challengeSubtypes[number];
 
 class Challenge extends Card {
-  type: CardType;
-  subType: ChallengeSubType;
+  subtype: ChallengeSubtype;
 
-  constructor(id, name, bodyText, faction, rarity, cost, subType) {
-    super(id, name, bodyText, faction, rarity, cost);
-    this.type = "Challenge";
-    this.subType = subType;
-    this.cost = cost;
+  constructor(id, name, owner, bodyText, faction, rarity, subtype) {
+    super(id, name, owner, bodyText, faction, rarity);
+    this.type = CARD_TYPE.CHALLENGE;
+    this.subtype = subtype;
+    this.cost = 0;
   }
 }
 

@@ -7,15 +7,18 @@ import {
   MAX_FUNDING,
 } from "./constants";
 
-export type GameZone =
-  | "look-hand"
-  | "stowed-hand"
-  | "deck"
-  | "discard-pile"
-  | "the-think-tank"
-  | "buffer-zone"
-  | "battle-zone"
-  | "location";
+export const GAME_ZONE = {
+  LOOK_HAND: "look-hand",
+  STOWED_HAND: "stowed-hand",
+  DECK: "deck",
+  DISCARD_PILE: "discard-pile",
+  THE_THINK_TANK: "the-think-tank",
+  ACTIVE_ZONE: "active-zone",
+  LOCATION: "location",
+} as const;
+
+const gameZones = Object.values(GAME_ZONE);
+export type GameZone = typeof gameZones[number];
 
 export type GameLog = {
   turn: number;
@@ -80,6 +83,10 @@ class Game {
     }
 
     puppetMaster.discardHand();
+    puppetMaster.funding = Math.min(
+      puppetMaster.funding + FUNDING_GAINED_PER_TURN,
+      MAX_FUNDING
+    );
     this.nextTurn();
 
     const isInitialDeployment = !(
@@ -96,10 +103,6 @@ class Game {
     const nextPuppetMaster = this.getPlayer(this.turn.player);
     if (nextPuppetMaster) {
       nextPuppetMaster.drawCards(CARDS_DRAWN_PER_TURN);
-      nextPuppetMaster.funding = Math.min(
-        nextPuppetMaster.funding + FUNDING_GAINED_PER_TURN,
-        MAX_FUNDING
-      );
     }
   }
 
@@ -142,7 +145,7 @@ class Game {
     return puppetMaster;
   }
 
-  play(userId, cardUuid, destination) {
+  play(userId: string, cardUuid: string, destination: GameZone) {
     // Check if user is allowed to play this card
     const isAllowedToPlayCard = this.isPlayersTurn(userId);
     if (!isAllowedToPlayCard) {
@@ -160,13 +163,13 @@ class Game {
       return;
     }
 
-    if (destination === "location") {
+    if (destination === GAME_ZONE.LOCATION) {
       if (this.location) {
         // if another location in play, it is discarded
         const otherPuppetMaster = this.puppetMasters.find(
           ({ id }) => id !== userId
         );
-        otherPuppetMaster?.moveCard(this.location.uuid, "discard-pile");
+        otherPuppetMaster?.moveCard(this.location.uuid, GAME_ZONE.DISCARD_PILE);
       }
 
       this.location = puppetMaster.location;

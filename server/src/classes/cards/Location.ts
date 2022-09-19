@@ -1,16 +1,22 @@
-import Card, { CardType } from "./Card";
+import Card, { CARD_TYPE } from "./Card";
 
-export type LocationSubType = "Real Estate" | "Realm" | "Zone";
+export const LOCATION_SUBTYPE = {
+  REAL_ESTATE: "Real Estate",
+  REALM: "Realm",
+  ZONE: "Zone",
+} as const;
+
+const locationSubtypes = Object.values(LOCATION_SUBTYPE);
+export type LocationSubtype = typeof locationSubtypes[number];
 
 class Location extends Card {
-  type: CardType;
-  subType: LocationSubType;
+  subtype: LocationSubtype;
 
-  constructor(id, name, bodyText, faction, rarity, cost, subType) {
-    super(id, name, bodyText, faction, rarity, cost);
-    this.type = "Location";
-    this.subType = subType;
-    this.cost = cost;
+  constructor(id, name, owner, bodyText, faction, rarity, subtype) {
+    super(id, name, owner, bodyText, faction, rarity);
+    this.type = CARD_TYPE.LOCATION;
+    this.subtype = subtype;
+    this.cost = 0;
   }
 }
 

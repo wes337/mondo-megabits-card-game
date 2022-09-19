@@ -58,12 +58,12 @@ function MainBoard() {
       <div class="main-board-left">
         <Show when={!soloPlay()}>
           <Zone name="the-think-tank" opponent />
-          <Zone name="battle-zone" opponent />
+          <Zone name="active-zone" opponent />
           <div class="main-board-separator grunge">
             <Plasma />
           </div>
         </Show>
-        <Zone name="battle-zone" />
+        <Zone name="active-zone" />
         <Zone name="the-think-tank" />
       </div>
       <div class="main-board-right panel light-grunge">

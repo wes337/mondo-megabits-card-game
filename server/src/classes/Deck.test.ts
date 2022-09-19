@@ -22,9 +22,6 @@ describe("Deck", () => {
     const deck = new Deck("Test");
     const cardId = "1";
 
-    deck.addCard(cardId);
-    expect(deck.valid).toBe(true);
-
     for (let i = 0; i < 3; i++) {
       deck.addCard(cardId);
     }

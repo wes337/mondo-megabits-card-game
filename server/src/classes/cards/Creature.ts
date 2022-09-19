@@ -1,19 +1,22 @@
-import Card, { CardType } from "./Card";
+import Card, { CARD_TYPE } from "./Card";
 
-export type CreatureSubType =
-  | "Figurehead"
-  | "Footsoldier"
-  | "Lackey"
-  | "Nemesis"
-  | "Pissant"
-  | "Double Agent"
-  | "Bad Actor"
-  | "Patsy"
-  | "Revolutionary";
+export const CREATURE_SUBTYPE = {
+  FIGUREHEAD: "Figurehead",
+  FOOTSOLDIER: "Footsoldier",
+  LACKEY: "Lackey",
+  NEMESIS: "Nemesis",
+  PISSANT: "Pissant",
+  DOUBLE_AGENT: "Double Agent",
+  BAD_ACTOR: "Bad Actor",
+  PATSY: "Patsy",
+  REVOLUTIONARY: "Revolutionary",
+} as const;
 
-class Creature extends Card {
-  type: CardType;
-  subType: CreatureSubType;
+const creatureSubtypes = Object.values(CREATURE_SUBTYPE);
+export type CreatureSubtype = typeof creatureSubtypes[number];
+
+export class Creature extends Card {
+  subtype: CreatureSubtype;
   stats: {
     HP: number;
     STR: number;
@@ -24,12 +27,12 @@ class Creature extends Card {
     PSI: number;
   };
 
-  constructor(id, name, bodyText, faction, rarity, cost, subType, stats) {
-    super(id, name, bodyText, faction, rarity, cost);
-    this.type = "Creature";
-    this.subType = subType;
+  constructor(id, name, owner, bodyText, faction, rarity, subtype, stats) {
+    super(id, name, owner, bodyText, faction, rarity);
+    this.type = CARD_TYPE.CREATURE;
+    this.subtype = subtype;
     this.stats = stats;
-    this.cost = cost;
+    this.cost = 2 + Math.floor(this.rarity / 2);
   }
 }
 

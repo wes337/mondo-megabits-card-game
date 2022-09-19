@@ -12,30 +12,23 @@ import {
   Tactic,
   Location,
 } from "./cards";
-import Card, { AnyCard, CardType } from "./cards/Card";
+import Card, { CardType, CARD_TYPE } from "./cards/Card";
 import {
   MAX_COPIES_OF_CARD_PER_DECK,
   MAX_FUNDING,
   STOW_CARD_FUNDING_COST,
 } from "./constants";
-import { GameZone } from "./Game";
+import { GameZone, GAME_ZONE } from "./Game";
 
 class PuppetMaster {
   id: string;
   narrative: number;
   deck: Card[];
   discardPile: Card[];
-  hand: {
-    look: Card[];
-    stowed: Card[];
-  };
-  board: {
-    // closest to the puppet master, cards can be played at any time
-    // do not untap, unless funded
-    theThinkTank: Card[];
-    bufferZone: Card[]; // facedown 1 tactic, 1 creature (patsy double|agent|bad actor), 1 challenge. played all at once when front lines breached, all discarded after played
-    battleZone: Card[]; // all active cards go here
-  };
+  lookHand: Card[];
+  stowedHand: Card[];
+  activeZone: Card[];
+  theThinkTank?: Creature;
   location?: Location;
   funding: number; // max of 20, restored at 4 per turn (after first turn)
 
@@ -43,17 +36,12 @@ class PuppetMaster {
     this.id = userId;
     this.narrative = 0; // -5 loses, 5 wins. Cost 10 funding for +1
     this.funding = MAX_FUNDING; // Max 20
-    this.hand = {
-      look: [],
-      stowed: [],
-    };
+    this.lookHand = [];
+    this.stowedHand = [];
     this.deck = [];
     this.discardPile = [];
-    this.board = {
-      theThinkTank: [], // Agenda, figurehead, and incantation only
-      bufferZone: [], // Tactic, creature, challenge only
-      battleZone: [],
-    };
+    this.theThinkTank = undefined;
+    this.activeZone = [];
     this.location = undefined;
   }
 
@@ -73,22 +61,6 @@ class PuppetMaster {
     cardIds.forEach((cardId) => {
       this.addCard(cardId);
     });
-  }
-
-  getZone(zoneName: GameZone): Card[] {
-    if (zoneName === "look-hand") {
-      return this.hand.look;
-    }
-
-    if (zoneName === "stowed-hand") {
-      return this.hand.stowed;
-    }
-
-    if (["deck", "discard-pile", "location"].includes(zoneName)) {
-      return this[hyphenToCamelCase(zoneName)];
-    }
-
-    return this.board[hyphenToCamelCase(zoneName)];
   }
 
   shuffleDeck() {
@@ -116,7 +88,7 @@ class PuppetMaster {
       cards.push(...this.deck.splice(0, remaining));
     }
 
-    this.hand.look.push(...cards);
+    this.lookHand.push(...cards);
   }
 
   tapCard(cardUuid: string): boolean {
@@ -130,11 +102,10 @@ class PuppetMaster {
 
     const { card, location } = cardAndLocation;
 
-    const cardIsOnBoard = [
-      "battle-zone",
-      "the-think-tank",
-      "buffer-zone",
-    ].includes(location);
+    const cardIsOnBoard =
+      location === GAME_ZONE.ACTIVE_ZONE ||
+      location === GAME_ZONE.THE_THINK_TANK;
+
     if (!cardIsOnBoard) {
       return false;
     }
@@ -159,28 +130,31 @@ class PuppetMaster {
       return false;
     }
 
-    // Move card to new location
-    if (destination === "location") {
-      this.location = card as Location;
+    // Add card to new location
+    const newZone = hyphenToCamelCase(destination);
+    if (Array.isArray(this[newZone])) {
+      this[newZone].push(card);
     } else {
-      const newZone = this.getZone(destination);
-      newZone.push(card);
+      this[newZone] = card;
     }
 
     // Remove card from old location
-    if (location === "location") {
-      this.location = undefined;
+    const oldZone = hyphenToCamelCase(location);
+    if (Array.isArray(this[oldZone])) {
+      const cardIndex = this[oldZone].findIndex(
+        (card) => card.uuid === cardUuid
+      );
+      this[oldZone].splice(cardIndex, 1);
     } else {
-      const oldZone = this.getZone(location);
-      const cardIndex = oldZone.findIndex((card) => card.uuid === cardUuid);
-      oldZone.splice(cardIndex, 1);
+      this[oldZone] = undefined;
     }
+
     return true;
   }
 
   discardHand() {
-    this.discardPile.push(...this.hand.look);
-    this.hand.look = [];
+    this.discardPile.push(...this.lookHand);
+    this.lookHand = [];
   }
 
   playCard(cardUuid: string, destination: GameZone): boolean {
@@ -201,14 +175,20 @@ class PuppetMaster {
 
     // Check if user can pay for card
     const cost =
-      destination === "stowed-hand" ? STOW_CARD_FUNDING_COST : card.cost;
+      destination === GAME_ZONE.STOWED_HAND
+        ? STOW_CARD_FUNDING_COST
+        : card.cost;
     const cantAfford = this.funding - cost < 0;
 
     if (cantAfford) {
       return false;
     }
 
-    if (destination === "location" && (card as Location).type !== "Location") {
+    // Check if card type can be played to zone
+    if (
+      destination === GAME_ZONE.LOCATION &&
+      card.type !== CARD_TYPE.LOCATION
+    ) {
       return false;
     }
 
@@ -218,24 +198,24 @@ class PuppetMaster {
   }
 
   findCardByUuid(cardUuid: string): {
-    card: AnyCard;
+    card: Card;
     location: GameZone;
   } | null {
-    const cardInLookHand = this.hand.look.find(({ uuid }) => uuid === cardUuid);
+    const cardInLookHand = this.lookHand.find(({ uuid }) => uuid === cardUuid);
     if (cardInLookHand) {
       return {
         card: cardInLookHand,
-        location: "look-hand",
+        location: GAME_ZONE.LOOK_HAND,
       };
     }
 
-    const cardInStowedHand = this.hand.stowed.find(
+    const cardInStowedHand = this.stowedHand.find(
       ({ uuid }) => uuid === cardUuid
     );
     if (cardInStowedHand) {
       return {
         card: cardInStowedHand,
-        location: "stowed-hand",
+        location: GAME_ZONE.STOWED_HAND,
       };
     }
 
@@ -245,7 +225,7 @@ class PuppetMaster {
     if (cardInDiscardPile) {
       return {
         card: cardInDiscardPile,
-        location: "discard-pile",
+        location: GAME_ZONE.DISCARD_PILE,
       };
     }
 
@@ -253,37 +233,27 @@ class PuppetMaster {
     if (cardInDeck) {
       return {
         card: cardInDeck,
-        location: "deck",
+        location: GAME_ZONE.DECK,
       };
     }
 
-    const cardInBattleZone = this.board.battleZone.find(
+    const cardInActiveZone = this.activeZone.find(
       ({ uuid }) => uuid === cardUuid
     );
-    if (cardInBattleZone) {
+    if (cardInActiveZone) {
       return {
-        card: cardInBattleZone,
-        location: "battle-zone",
+        card: cardInActiveZone,
+        location: GAME_ZONE.ACTIVE_ZONE,
       };
     }
 
-    const cardInBufferZone = this.board.bufferZone.find(
-      ({ uuid }) => uuid === cardUuid
-    );
-    if (cardInBufferZone) {
-      return {
-        card: cardInBufferZone,
-        location: "buffer-zone",
-      };
-    }
+    const cardInTheThinkTank =
+      this.theThinkTank?.uuid === cardUuid ? this.theThinkTank : null;
 
-    const cardInTheThinkTank = this.board.theThinkTank.find(
-      ({ uuid }) => uuid === cardUuid
-    );
     if (cardInTheThinkTank) {
       return {
         card: cardInTheThinkTank,
-        location: "the-think-tank",
+        location: GAME_ZONE.THE_THINK_TANK,
       };
     }
 
@@ -292,7 +262,7 @@ class PuppetMaster {
     if (cardInLocation) {
       return {
         card: cardInLocation,
-        location: "location",
+        location: GAME_ZONE.LOCATION,
       };
     }
 
@@ -312,142 +282,142 @@ class PuppetMaster {
     }
 
     switch (card.type as CardType) {
-      case "Creature": {
+      case CARD_TYPE.CREATURE: {
         this.deck.push(
           new Creature(
             card.id,
             card.name,
+            this.id,
             card.bodyText,
             card.faction,
             card.rarity,
-            2 + Math.floor(card.rarity / 2),
             card.subtype,
             card.stats
           )
         );
         break;
       }
-      case "Challenge": {
+      case CARD_TYPE.CHALLENGE: {
         this.deck.push(
           new Challenge(
             card.id,
             card.name,
+            this.id,
             card.bodyText,
             card.faction,
             card.rarity,
-            0,
             card.subtype
           )
         );
         break;
       }
-      case "Buff": {
+      case CARD_TYPE.BUFF: {
         this.deck.push(
           new Buff(
             card.id,
             card.name,
+            this.id,
             card.bodyText,
             card.faction,
             card.rarity,
-            2,
             card.subtype
           )
         );
         break;
       }
-      case "Group": {
+      case CARD_TYPE.GROUP: {
         this.deck.push(
           new Group(
             card.id,
             card.name,
+            this.id,
             card.bodyText,
             card.faction,
-            3,
             card.rarity,
             card.subtype
           )
         );
         break;
       }
-      case "Information": {
+      case CARD_TYPE.INFORMATION: {
         this.deck.push(
           new Information(
             card.id,
             card.name,
+            this.id,
             card.bodyText,
             card.faction,
             card.rarity,
-            0,
             card.subtype
           )
         );
         break;
       }
-      case "Item": {
+      case CARD_TYPE.ITEM: {
         this.deck.push(
           new Item(
             card.id,
             card.name,
+            this.id,
             card.bodyText,
             card.faction,
             card.rarity,
-            2,
             card.subtype
           )
         );
         break;
       }
-      case "Location": {
+      case CARD_TYPE.LOCATION: {
         this.deck.push(
           new Location(
             card.id,
             card.name,
+            this.id,
             card.bodyText,
             card.faction,
             card.rarity,
-            0,
             card.subtype
           )
         );
         break;
       }
-      case "Plot Twist": {
+      case CARD_TYPE.PLOT_TWIST: {
         this.deck.push(
           new PlotTwist(
             card.id,
             card.name,
+            this.id,
             card.bodyText,
             card.faction,
             card.rarity,
-            0,
             card.subtype
           )
         );
         break;
       }
-      case "Skill": {
+      case CARD_TYPE.SKILL: {
         this.deck.push(
           new Skill(
             card.id,
             card.name,
+            this.id,
             card.bodyText,
             card.faction,
             card.rarity,
-            1,
             card.subtype
           )
         );
         break;
       }
-      case "Tactic": {
+      case CARD_TYPE.TACTIC: {
         this.deck.push(
           new Tactic(
             card.id,
             card.name,
+            this.id,
             card.bodyText,
             card.faction,
             card.rarity,
-            2,
             card.subtype
           )
         );

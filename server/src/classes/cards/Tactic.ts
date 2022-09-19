@@ -1,16 +1,23 @@
-import Card, { CardType } from "./Card";
+import Card, { CARD_TYPE } from "./Card";
 
-export type TacticSubType = "Ability" | "Bailout" | "Scam" | "Security Measure";
+export const TACTIC_SUBTYPE = {
+  ABILITY: "Ability",
+  BAILOUT: "Bailout",
+  SCAM: "Scam",
+  SECURITY_MEASURE: "Security Measure",
+} as const;
+
+const tacticSubtypes = Object.values(TACTIC_SUBTYPE);
+export type TacticSubtype = typeof tacticSubtypes[number];
 
 class Tactic extends Card {
-  type: CardType;
-  subType: TacticSubType;
+  subtype: TacticSubtype;
 
-  constructor(id, name, bodyText, faction, rarity, cost, subType) {
-    super(id, name, bodyText, faction, rarity, cost);
-    this.type = "Tactic";
-    this.subType = subType;
-    this.cost = cost;
+  constructor(id, name, owner, bodyText, faction, rarity, subtype) {
+    super(id, name, owner, bodyText, faction, rarity);
+    this.type = CARD_TYPE.TACTIC;
+    this.subtype = subtype;
+    this.cost = 2;
   }
 }
 

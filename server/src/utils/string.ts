@@ -7,7 +7,7 @@ export const generateKey = (length = 5): string => {
   return result;
 };
 
-export const hyphenToCamelCase = (hyphenString) => {
+export const hyphenToCamelCase = (hyphenString: string): string => {
   return hyphenString.replace(/-([a-z])/g, (g) => {
     return g[1].toUpperCase();
   });

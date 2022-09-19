@@ -42,43 +42,43 @@ class Deck {
         }
         switch (card.type) {
             case "Creature": {
-                this.cards.push(new cards_1.Creature(card.id, card.name, card.bodyText, card.faction, card.rarity, 2 + Math.floor(card.rarity / 2), card.subtype, card.stats));
+                this.cards.push(new cards_1.Creature(card.id, card.name, undefined, card.bodyText, card.faction, card.rarity, card.subtype, card.stats));
                 break;
             }
             case "Challenge": {
-                this.cards.push(new cards_1.Challenge(card.id, card.name, card.bodyText, card.faction, card.rarity, 0, card.subtype));
+                this.cards.push(new cards_1.Challenge(card.id, card.name, undefined, card.bodyText, card.faction, card.rarity, card.subtype));
                 break;
             }
             case "Buff": {
-                this.cards.push(new cards_1.Buff(card.id, card.name, card.bodyText, card.faction, card.rarity, 2, card.subtype));
+                this.cards.push(new cards_1.Buff(card.id, card.name, undefined, card.bodyText, card.faction, card.rarity, card.subtype));
                 break;
             }
             case "Group": {
-                this.cards.push(new cards_1.Group(card.id, card.name, card.bodyText, card.faction, 3, card.rarity, card.subtype));
+                this.cards.push(new cards_1.Group(card.id, card.name, undefined, card.bodyText, card.faction, card.rarity, card.subtype));
                 break;
             }
             case "Information": {
-                this.cards.push(new cards_1.Information(card.id, card.name, card.bodyText, card.faction, card.rarity, 0, card.subtype));
+                this.cards.push(new cards_1.Information(card.id, card.name, undefined, card.bodyText, card.faction, card.rarity, card.subtype));
                 break;
             }
             case "Item": {
-                this.cards.push(new cards_1.Item(card.id, card.name, card.bodyText, card.faction, card.rarity, 2, card.subtype));
+                this.cards.push(new cards_1.Item(card.id, card.name, undefined, card.bodyText, card.faction, card.rarity, card.subtype));
                 break;
             }
             case "Location": {
-                this.cards.push(new cards_1.Location(card.id, card.name, card.bodyText, card.faction, card.rarity, 0, card.subtype));
+                this.cards.push(new cards_1.Location(card.id, card.name, undefined, card.bodyText, card.faction, card.rarity, card.subtype));
                 break;
             }
             case "Plot Twist": {
-                this.cards.push(new cards_1.PlotTwist(card.id, card.name, card.bodyText, card.faction, card.rarity, 0, card.subtype));
+                this.cards.push(new cards_1.PlotTwist(card.id, card.name, undefined, card.bodyText, card.faction, card.rarity, card.subtype));
                 break;
             }
             case "Skill": {
-                this.cards.push(new cards_1.Skill(card.id, card.name, card.bodyText, card.faction, card.rarity, 1, card.subtype));
+                this.cards.push(new cards_1.Skill(card.id, card.name, undefined, card.bodyText, card.faction, card.rarity, card.subtype));
                 break;
             }
             case "Tactic": {
-                this.cards.push(new cards_1.Tactic(card.id, card.name, card.bodyText, card.faction, card.rarity, 2, card.subtype));
+                this.cards.push(new cards_1.Tactic(card.id, card.name, undefined, card.bodyText, card.faction, card.rarity, card.subtype));
                 break;
             }
             default: {

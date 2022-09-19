@@ -3,23 +3,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const card_1 = require("../functions/card");
 const string_1 = require("../utils/string");
 const cards_1 = require("./cards");
+const Card_1 = require("./cards/Card");
 const constants_1 = require("./constants");
+const Game_1 = require("./Game");
 class PuppetMaster {
     constructor(userId) {
         this.id = userId;
         this.narrative = 0;
         this.funding = constants_1.MAX_FUNDING;
-        this.hand = {
-            look: [],
-            stowed: [],
-        };
+        this.lookHand = [];
+        this.stowedHand = [];
         this.deck = [];
         this.discardPile = [];
-        this.board = {
-            theThinkTank: [],
-            bufferZone: [],
-            battleZone: [],
-        };
+        this.theThinkTank = undefined;
+        this.activeZone = [];
         this.location = undefined;
     }
     getCardCount(key = "id") {
@@ -34,18 +31,6 @@ class PuppetMaster {
         cardIds.forEach((cardId) => {
             this.addCard(cardId);
         });
-    }
-    getZone(zoneName) {
-        if (zoneName === "look-hand") {
-            return this.hand.look;
-        }
-        if (zoneName === "stowed-hand") {
-            return this.hand.stowed;
-        }
-        if (["deck", "discard-pile", "location"].includes(zoneName)) {
-            return this[(0, string_1.hyphenToCamelCase)(zoneName)];
-        }
-        return this.board[(0, string_1.hyphenToCamelCase)(zoneName)];
     }
     shuffleDeck() {
         this.deck.sort(() => {
@@ -64,7 +49,7 @@ class PuppetMaster {
         if (remaining > 0) {
             cards.push(...this.deck.splice(0, remaining));
         }
-        this.hand.look.push(...cards);
+        this.lookHand.push(...cards);
     }
     tapCard(cardUuid) {
         const cardAndLocation = this.findCardByUuid(cardUuid);
@@ -72,11 +57,8 @@ class PuppetMaster {
             return false;
         }
         const { card, location } = cardAndLocation;
-        const cardIsOnBoard = [
-            "battle-zone",
-            "the-think-tank",
-            "buffer-zone",
-        ].includes(location);
+        const cardIsOnBoard = location === Game_1.GAME_ZONE.ACTIVE_ZONE ||
+            location === Game_1.GAME_ZONE.THE_THINK_TANK;
         if (!cardIsOnBoard) {
             return false;
         }
@@ -92,26 +74,26 @@ class PuppetMaster {
         if (location === destination) {
             return false;
         }
-        if (destination === "location") {
-            this.location = card;
+        const newZone = (0, string_1.hyphenToCamelCase)(destination);
+        if (Array.isArray(this[newZone])) {
+            this[newZone].push(card);
         }
         else {
-            const newZone = this.getZone(destination);
-            newZone.push(card);
+            this[newZone] = card;
         }
-        if (location === "location") {
-            this.location = undefined;
+        const oldZone = (0, string_1.hyphenToCamelCase)(location);
+        if (Array.isArray(this[oldZone])) {
+            const cardIndex = this[oldZone].findIndex((card) => card.uuid === cardUuid);
+            this[oldZone].splice(cardIndex, 1);
         }
         else {
-            const oldZone = this.getZone(location);
-            const cardIndex = oldZone.findIndex((card) => card.uuid === cardUuid);
-            oldZone.splice(cardIndex, 1);
+            this[oldZone] = undefined;
         }
         return true;
     }
     discardHand() {
-        this.discardPile.push(...this.hand.look);
-        this.hand.look = [];
+        this.discardPile.push(...this.lookHand);
+        this.lookHand = [];
     }
     playCard(cardUuid, destination) {
         const cardAndLocation = this.findCardByUuid(cardUuid);
@@ -122,12 +104,15 @@ class PuppetMaster {
         if (location === destination) {
             return false;
         }
-        const cost = destination === "stowed-hand" ? constants_1.STOW_CARD_FUNDING_COST : card.cost;
+        const cost = destination === Game_1.GAME_ZONE.STOWED_HAND
+            ? constants_1.STOW_CARD_FUNDING_COST
+            : card.cost;
         const cantAfford = this.funding - cost < 0;
         if (cantAfford) {
             return false;
         }
-        if (destination === "location" && card.type !== "Location") {
+        if (destination === Game_1.GAME_ZONE.LOCATION &&
+            card.type !== Card_1.CARD_TYPE.LOCATION) {
             return false;
         }
         this.funding = this.funding - cost;
@@ -135,61 +120,54 @@ class PuppetMaster {
         return cardMoved;
     }
     findCardByUuid(cardUuid) {
-        var _a;
-        const cardInLookHand = this.hand.look.find(({ uuid }) => uuid === cardUuid);
+        var _a, _b;
+        const cardInLookHand = this.lookHand.find(({ uuid }) => uuid === cardUuid);
         if (cardInLookHand) {
             return {
                 card: cardInLookHand,
-                location: "look-hand",
+                location: Game_1.GAME_ZONE.LOOK_HAND,
             };
         }
-        const cardInStowedHand = this.hand.stowed.find(({ uuid }) => uuid === cardUuid);
+        const cardInStowedHand = this.stowedHand.find(({ uuid }) => uuid === cardUuid);
         if (cardInStowedHand) {
             return {
                 card: cardInStowedHand,
-                location: "stowed-hand",
+                location: Game_1.GAME_ZONE.STOWED_HAND,
             };
         }
         const cardInDiscardPile = this.discardPile.find(({ uuid }) => uuid === cardUuid);
         if (cardInDiscardPile) {
             return {
                 card: cardInDiscardPile,
-                location: "discard-pile",
+                location: Game_1.GAME_ZONE.DISCARD_PILE,
             };
         }
         const cardInDeck = this.deck.find(({ uuid }) => uuid === cardUuid);
         if (cardInDeck) {
             return {
                 card: cardInDeck,
-                location: "deck",
+                location: Game_1.GAME_ZONE.DECK,
             };
         }
-        const cardInBattleZone = this.board.battleZone.find(({ uuid }) => uuid === cardUuid);
-        if (cardInBattleZone) {
+        const cardInActiveZone = this.activeZone.find(({ uuid }) => uuid === cardUuid);
+        if (cardInActiveZone) {
             return {
-                card: cardInBattleZone,
-                location: "battle-zone",
+                card: cardInActiveZone,
+                location: Game_1.GAME_ZONE.ACTIVE_ZONE,
             };
         }
-        const cardInBufferZone = this.board.bufferZone.find(({ uuid }) => uuid === cardUuid);
-        if (cardInBufferZone) {
-            return {
-                card: cardInBufferZone,
-                location: "buffer-zone",
-            };
-        }
-        const cardInTheThinkTank = this.board.theThinkTank.find(({ uuid }) => uuid === cardUuid);
+        const cardInTheThinkTank = ((_a = this.theThinkTank) === null || _a === void 0 ? void 0 : _a.uuid) === cardUuid ? this.theThinkTank : null;
         if (cardInTheThinkTank) {
             return {
                 card: cardInTheThinkTank,
-                location: "the-think-tank",
+                location: Game_1.GAME_ZONE.THE_THINK_TANK,
             };
         }
-        const cardInLocation = ((_a = this.location) === null || _a === void 0 ? void 0 : _a.uuid) === cardUuid ? this.location : null;
+        const cardInLocation = ((_b = this.location) === null || _b === void 0 ? void 0 : _b.uuid) === cardUuid ? this.location : null;
         if (cardInLocation) {
             return {
                 card: cardInLocation,
-                location: "location",
+                location: Game_1.GAME_ZONE.LOCATION,
             };
         }
         return null;
@@ -204,44 +182,44 @@ class PuppetMaster {
             return false;
         }
         switch (card.type) {
-            case "Creature": {
-                this.deck.push(new cards_1.Creature(card.id, card.name, card.bodyText, card.faction, card.rarity, 2 + Math.floor(card.rarity / 2), card.subtype, card.stats));
+            case Card_1.CARD_TYPE.CREATURE: {
+                this.deck.push(new cards_1.Creature(card.id, card.name, this.id, card.bodyText, card.faction, card.rarity, card.subtype, card.stats));
                 break;
             }
-            case "Challenge": {
-                this.deck.push(new cards_1.Challenge(card.id, card.name, card.bodyText, card.faction, card.rarity, 0, card.subtype));
+            case Card_1.CARD_TYPE.CHALLENGE: {
+                this.deck.push(new cards_1.Challenge(card.id, card.name, this.id, card.bodyText, card.faction, card.rarity, card.subtype));
                 break;
             }
-            case "Buff": {
-                this.deck.push(new cards_1.Buff(card.id, card.name, card.bodyText, card.faction, card.rarity, 2, card.subtype));
+            case Card_1.CARD_TYPE.BUFF: {
+                this.deck.push(new cards_1.Buff(card.id, card.name, this.id, card.bodyText, card.faction, card.rarity, card.subtype));
                 break;
             }
-            case "Group": {
-                this.deck.push(new cards_1.Group(card.id, card.name, card.bodyText, card.faction, 3, card.rarity, card.subtype));
+            case Card_1.CARD_TYPE.GROUP: {
+                this.deck.push(new cards_1.Group(card.id, card.name, this.id, card.bodyText, card.faction, card.rarity, card.subtype));
                 break;
             }
-            case "Information": {
-                this.deck.push(new cards_1.Information(card.id, card.name, card.bodyText, card.faction, card.rarity, 0, card.subtype));
+            case Card_1.CARD_TYPE.INFORMATION: {
+                this.deck.push(new cards_1.Information(card.id, card.name, this.id, card.bodyText, card.faction, card.rarity, card.subtype));
                 break;
             }
-            case "Item": {
-                this.deck.push(new cards_1.Item(card.id, card.name, card.bodyText, card.faction, card.rarity, 2, card.subtype));
+            case Card_1.CARD_TYPE.ITEM: {
+                this.deck.push(new cards_1.Item(card.id, card.name, this.id, card.bodyText, card.faction, card.rarity, card.subtype));
                 break;
             }
-            case "Location": {
-                this.deck.push(new cards_1.Location(card.id, card.name, card.bodyText, card.faction, card.rarity, 0, card.subtype));
+            case Card_1.CARD_TYPE.LOCATION: {
+                this.deck.push(new cards_1.Location(card.id, card.name, this.id, card.bodyText, card.faction, card.rarity, card.subtype));
                 break;
             }
-            case "Plot Twist": {
-                this.deck.push(new cards_1.PlotTwist(card.id, card.name, card.bodyText, card.faction, card.rarity, 0, card.subtype));
+            case Card_1.CARD_TYPE.PLOT_TWIST: {
+                this.deck.push(new cards_1.PlotTwist(card.id, card.name, this.id, card.bodyText, card.faction, card.rarity, card.subtype));
                 break;
             }
-            case "Skill": {
-                this.deck.push(new cards_1.Skill(card.id, card.name, card.bodyText, card.faction, card.rarity, 1, card.subtype));
+            case Card_1.CARD_TYPE.SKILL: {
+                this.deck.push(new cards_1.Skill(card.id, card.name, this.id, card.bodyText, card.faction, card.rarity, card.subtype));
                 break;
             }
-            case "Tactic": {
-                this.deck.push(new cards_1.Tactic(card.id, card.name, card.bodyText, card.faction, card.rarity, 2, card.subtype));
+            case Card_1.CARD_TYPE.TACTIC: {
+                this.deck.push(new cards_1.Tactic(card.id, card.name, this.id, card.bodyText, card.faction, card.rarity, card.subtype));
                 break;
             }
             default: {

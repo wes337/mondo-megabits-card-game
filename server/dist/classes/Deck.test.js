@@ -21,8 +21,6 @@ describe("Deck", () => {
     it("should invalidate deck if there is too many of one card", () => {
         const deck = new Deck_1.default("Test");
         const cardId = "1";
-        deck.addCard(cardId);
-        expect(deck.valid).toBe(true);
         for (let i = 0; i < 3; i++) {
             deck.addCard(cardId);
         }

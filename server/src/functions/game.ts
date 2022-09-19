@@ -1,4 +1,4 @@
-import { createRandomDeck } from "../utils/card";
+import { getRandomCardIds } from "../utils/card";
 import { getUsersInRoom, getRoomStatus, getRoomUserIsIn } from "./room";
 import { sendLobbyInfo } from "../ws/lobby";
 import { messageRoom } from "../ws/room";
@@ -199,11 +199,8 @@ export const createGame = (userId) => {
     const puppetMaster = new PuppetMaster(userId);
 
     const userDeck = room.users[userId].deck;
-    if (userDeck && userDeck.length > 0) {
-      puppetMaster.setDeck(userDeck);
-    } else {
-      puppetMaster.deck = createRandomDeck(40);
-    }
+    const deck = userDeck || getRandomCardIds(40);
+    puppetMaster.setDeck(deck);
 
     return puppetMaster;
   });

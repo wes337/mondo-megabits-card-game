@@ -1,31 +1,32 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cardTypes = void 0;
+exports.CARD_TYPE = void 0;
 const string_1 = require("../../utils/string");
-exports.cardTypes = [
-    "Creature",
-    "Item",
-    "Location",
-    "Tactic",
-    "Agenda",
-    "Plot Twist",
-    "Buff",
-    "Information",
-    "Challenge",
-    "Skill",
-    "Group",
-];
+exports.CARD_TYPE = {
+    CREATURE: "Creature",
+    ITEM: "Item",
+    LOCATION: "Location",
+    TACTIC: "Tactic",
+    AGENDA: "Agenda",
+    PLOT_TWIST: "Plot Twist",
+    BUFF: "Buff",
+    INFORMATION: "Information",
+    CHALLENGE: "Challenge",
+    SKILL: "Skill",
+    GROUP: "Group",
+};
+const cardTypes = Object.values(exports.CARD_TYPE);
 class Card {
-    constructor(id, name, bodyText, faction, rarity, cost) {
+    constructor(id, name, owner, bodyText, faction, rarity) {
         this.uuid = (0, string_1.generateKey)();
         this.id = id;
         this.name = name;
+        this.owner = owner;
+        this.bodyText = bodyText;
         this.faction = faction;
         this.rarity = rarity;
-        this.bodyText = bodyText;
         this.faceDown = false;
         this.tapped = false;
-        this.cost = cost;
     }
 }
 exports.default = Card;

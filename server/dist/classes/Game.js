@@ -1,6 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.GAME_ZONE = void 0;
 const constants_1 = require("./constants");
+exports.GAME_ZONE = {
+    LOOK_HAND: "look-hand",
+    STOWED_HAND: "stowed-hand",
+    DECK: "deck",
+    DISCARD_PILE: "discard-pile",
+    THE_THINK_TANK: "the-think-tank",
+    ACTIVE_ZONE: "active-zone",
+    LOCATION: "location",
+};
+const gameZones = Object.values(exports.GAME_ZONE);
 class Game {
     constructor(id, puppetMasters) {
         this.id = id;
@@ -38,6 +49,7 @@ class Game {
             return;
         }
         puppetMaster.discardHand();
+        puppetMaster.funding = Math.min(puppetMaster.funding + constants_1.FUNDING_GAINED_PER_TURN, constants_1.MAX_FUNDING);
         this.nextTurn();
         const isInitialDeployment = !((this.puppetMasters.length === 1 && this.turn.number >= 2) ||
             this.turn.number > 2);
@@ -47,7 +59,6 @@ class Game {
         const nextPuppetMaster = this.getPlayer(this.turn.player);
         if (nextPuppetMaster) {
             nextPuppetMaster.drawCards(constants_1.CARDS_DRAWN_PER_TURN);
-            nextPuppetMaster.funding = Math.min(nextPuppetMaster.funding + constants_1.FUNDING_GAINED_PER_TURN, constants_1.MAX_FUNDING);
         }
     }
     isPlayersTurn(userId) {
@@ -90,10 +101,10 @@ class Game {
         if (!cardWasPlayed) {
             return;
         }
-        if (destination === "location") {
+        if (destination === exports.GAME_ZONE.LOCATION) {
             if (this.location) {
                 const otherPuppetMaster = this.puppetMasters.find(({ id }) => id !== userId);
-                otherPuppetMaster === null || otherPuppetMaster === void 0 ? void 0 : otherPuppetMaster.moveCard(this.location.uuid, "discard-pile");
+                otherPuppetMaster === null || otherPuppetMaster === void 0 ? void 0 : otherPuppetMaster.moveCard(this.location.uuid, exports.GAME_ZONE.DISCARD_PILE);
             }
             this.location = puppetMaster.location;
         }
