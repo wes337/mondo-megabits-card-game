@@ -2,7 +2,7 @@ import { getRandomCardIds } from "../utils/card";
 import { getUsersInRoom, getRoomStatus, getRoomUserIsIn } from "./room";
 import { sendLobbyInfo } from "../ws/lobby";
 import { messageRoom } from "../ws/room";
-import Game from "../classes/Game";
+import Game, { GAME_ZONE } from "../classes/Game";
 import PuppetMaster from "../classes/PuppetMaster";
 import { USER_STATUS } from "../types/user";
 import { MESSAGE_TYPES } from "../types/messages";
@@ -73,9 +73,17 @@ export const move = (userId, params) => {
   }
 
   // Check if user can move card
-  const canMoveCard = game.isPlayersTurn(userId);
+  const canMoveCard =
+    game.isPlayersTurn(userId) || destination === GAME_ZONE.DISCARD_PILE;
   if (!canMoveCard) {
     return;
+  }
+
+  if (
+    game.location?.uuid === cardUuid &&
+    destination === GAME_ZONE.DISCARD_PILE
+  ) {
+    game.location = undefined;
   }
 
   puppetMaster.moveCard(cardUuid, destination);
@@ -122,7 +130,7 @@ export const tap = (userId, params) => {
     return;
   }
 
-  puppetMaster.tapCard(cardUuid);
+  puppetMaster.tapOrUntapCard(cardUuid);
   updateGame(game);
 };
 
@@ -141,6 +149,24 @@ export const play = (userId, params) => {
   const { cardUuid, destination } = params;
 
   game.play(userId, cardUuid, destination);
+  updateGame(game);
+};
+
+export const attack = (userId, params) => {
+  const { room, game } = getGameAndRoomUserIsIn(userId);
+
+  if (!room || !game) {
+    return;
+  }
+
+  const userIsInRoom = room.users[userId];
+  if (!userIsInRoom) {
+    return;
+  }
+
+  const { attackerUuid, defenderUuid } = params;
+
+  game.attack(userId, attackerUuid, defenderUuid);
   updateGame(game);
 };
 
@@ -239,4 +265,32 @@ export const start = (userId) => {
     room.status = ROOM_STATUS.IN_PROGRESS;
     sendLobbyInfo();
   }
+};
+
+export const editCardNotes = (userId, params) => {
+  const { room, game } = getGameAndRoomUserIsIn(userId);
+
+  if (!room || !game) {
+    return;
+  }
+
+  const userIsInRoom = room.users[userId];
+  if (!userIsInRoom) {
+    return;
+  }
+
+  const { cardUuid, notes } = params;
+
+  const card = game.findCard(cardUuid);
+  if (!card) {
+    return;
+  }
+
+  card.notes = notes;
+  game.addLog({
+    event: "edit-card-notes",
+    sourceUserId: userId,
+    card: cardUuid,
+  });
+  updateGame(game);
 };

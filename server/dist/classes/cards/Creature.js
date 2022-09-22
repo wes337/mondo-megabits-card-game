@@ -44,6 +44,33 @@ class Creature extends Card_1.default {
         this.subtype = subtype;
         this.stats = stats;
         this.cost = 2 + Math.floor(this.rarity / 2);
+        this.attacks = 0;
+        this.abilities = 0;
+    }
+    get attackDamage() {
+        return this.stats.STR * 100;
+    }
+    get maxAttacks() {
+        return 1 + Math.floor(this.stats.FYT / 5);
+    }
+    get maxAbilities() {
+        return 1 + Math.floor(this.stats.NRG / 5);
+    }
+    attack() {
+        this.attacks++;
+    }
+    useAbility() {
+        this.abilities++;
+    }
+    canAttack() {
+        if (this.abilities === 0 || this.stats.SWG >= 5) {
+            return this.attacks < this.maxAttacks;
+        }
+        return false;
+    }
+    resetAttacksAndAbilities() {
+        this.attacks = 0;
+        this.abilities = 0;
     }
 }
 exports.Creature = Creature;

@@ -1,8 +1,8 @@
 import { createStore } from "solid-js/store";
 import initialState from "./initialState";
 
-// const ws = new WebSocket("wss://mondo-megabits.herokuapp.com");
-const ws = new WebSocket("ws://localhost:5000");
+const ws = new WebSocket("wss://mondo-megabits.herokuapp.com");
+// const ws = new WebSocket("ws://localhost:5000");
 
 function useStore() {
   const [state, setState] = createStore(initialState);
@@ -127,6 +127,11 @@ function useStore() {
       case "target": {
         const { target } = params;
         setState({ target });
+        break;
+      }
+      case "message": {
+        const { message } = params;
+        setState({ snackbar: message });
         break;
       }
       default: {

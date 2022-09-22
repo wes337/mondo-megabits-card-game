@@ -1,3 +1,4 @@
+import { messagePlayer } from "../ws/game";
 import { getCardById } from "../functions/card";
 import { hyphenToCamelCase } from "../utils/string";
 import {
@@ -19,6 +20,7 @@ import {
   STOW_CARD_FUNDING_COST,
 } from "./constants";
 import { GameZone, GAME_ZONE } from "./Game";
+import { CREATURE_SUBTYPE } from "./cards/Creature";
 
 class PuppetMaster {
   id: string;
@@ -43,6 +45,10 @@ class PuppetMaster {
     this.theThinkTank = undefined;
     this.activeZone = [];
     this.location = undefined;
+  }
+
+  sendMessage(message: string) {
+    messagePlayer(this.id, message);
   }
 
   getCardCount(key = "id"): {
@@ -91,7 +97,7 @@ class PuppetMaster {
     this.lookHand.push(...cards);
   }
 
-  tapCard(cardUuid: string): boolean {
+  tapOrUntapCard(cardUuid: string): boolean {
     const cardAndLocation = this.findCardByUuid(cardUuid);
 
     // Card does not exist, or player
@@ -112,6 +118,16 @@ class PuppetMaster {
 
     card.tapped = !card.tapped;
     return true;
+  }
+
+  untapAllCards(): void {
+    [...this.activeZone, this.theThinkTank].forEach((card) => {
+      if (!card) {
+        return;
+      }
+
+      card.tapped = false;
+    });
   }
 
   moveCard(cardUuid: string, destination: GameZone): boolean {
@@ -181,6 +197,7 @@ class PuppetMaster {
     const cantAfford = this.funding - cost < 0;
 
     if (cantAfford) {
+      this.sendMessage("You don't have enough funding to play this card.");
       return false;
     }
 
@@ -189,6 +206,15 @@ class PuppetMaster {
       destination === GAME_ZONE.LOCATION &&
       card.type !== CARD_TYPE.LOCATION
     ) {
+      this.sendMessage("You can only play Location cards here.");
+      return false;
+    }
+
+    if (
+      destination === GAME_ZONE.THE_THINK_TANK &&
+      card.subtype !== CREATURE_SUBTYPE.FIGUREHEAD
+    ) {
+      this.sendMessage("You can only play Figurehead Creatures here.");
       return false;
     }
 

@@ -21,6 +21,7 @@ class Card {
   uuid: string;
   id: number;
   owner: string;
+  notes: string;
   name: string;
   bodyText: string;
   faction: string;
@@ -42,6 +43,7 @@ class Card {
     this.rarity = rarity;
     this.faceDown = false;
     this.tapped = false;
+    this.notes = "";
   }
 }
 

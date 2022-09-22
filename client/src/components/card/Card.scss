@@ -3,16 +3,19 @@
 .card {
   position: relative;
   cursor: grab;
+
   max-width: 180px;
   transition: transform 0.2s ease-in-out;
   user-select: none;
   border-radius: 0.25rem;
 
   .card-actions {
+    display: flex;
     position: absolute;
     top: 0;
     left: 0;
     z-index: 1;
+    width: 100%;
 
     .card-action-button {
       opacity: 0;
@@ -23,6 +26,10 @@
       padding: 0 0.25rem;
       margin: 0.25rem;
       border: 4px outset $colorGray;
+
+      &.edit-button {
+        margin-left: auto;
+      }
 
       &:hover {
         background-color: $colorGray;
@@ -40,27 +47,34 @@
   }
 
   &.tapped {
-    transform: rotate(90deg);
+    .card-img {
+      transform: rotate(90deg) translateY(-25%);
+    }
+
+    .card-actions {
+      transform: translate(10%, 200%);
+    }
   }
 
-  img {
+  .card-img {
     display: block;
     max-width: 100%;
     max-height: 100%;
     user-select: none;
     border-radius: 0.25rem;
+    box-shadow: 0 0 0.25rem 0.25rem rgba($colorBlack, 0.5);
   }
 
   &.focus {
     z-index: 1;
 
-    img {
+    .card-img {
       outline: 4px solid $colorRed;
     }
   }
 
   &:hover {
-    img {
+    .card-img {
       outline: 2px solid $colorYellow;
       filter: brightness(1.25);
     }
@@ -73,7 +87,7 @@
   }
 
   &:active {
-    img {
+    .card-img {
       outline: 4px solid $colorTeal;
     }
   }

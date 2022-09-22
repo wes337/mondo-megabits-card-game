@@ -26,6 +26,8 @@ export class Creature extends Card {
     SWG: number;
     PSI: number;
   };
+  attacks: 0;
+  abilities: 0;
 
   constructor(id, name, owner, bodyText, faction, rarity, subtype, stats) {
     super(id, name, owner, bodyText, faction, rarity);
@@ -33,6 +35,40 @@ export class Creature extends Card {
     this.subtype = subtype;
     this.stats = stats;
     this.cost = 2 + Math.floor(this.rarity / 2);
+    this.attacks = 0;
+    this.abilities = 0;
+  }
+
+  get attackDamage(): number {
+    return this.stats.STR * 100;
+  }
+
+  get maxAttacks(): number {
+    return 1 + Math.floor(this.stats.FYT / 5);
+  }
+
+  get maxAbilities(): number {
+    return 1 + Math.floor(this.stats.NRG / 5);
+  }
+
+  attack(): void {
+    this.attacks++;
+  }
+
+  useAbility(): void {
+    this.abilities++;
+  }
+
+  canAttack(): boolean {
+    if (this.abilities === 0 || this.stats.SWG >= 5) {
+      return this.attacks < this.maxAttacks;
+    }
+    return false;
+  }
+
+  resetAttacksAndAbilities(): void {
+    this.attacks = 0;
+    this.abilities = 0;
   }
 }
 

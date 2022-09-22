@@ -27,6 +27,7 @@ class Card {
         this.rarity = rarity;
         this.faceDown = false;
         this.tapped = false;
+        this.notes = "";
     }
 }
 exports.default = Card;

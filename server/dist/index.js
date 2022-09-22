@@ -59,6 +59,9 @@ webSocketServer.on("connection", (socket) => {
                 case messages_1.MESSAGE_TYPES.PLAY:
                     (0, game_1.play)(userId, params);
                     break;
+                case messages_1.MESSAGE_TYPES.ATTACK:
+                    (0, game_1.attack)(userId, params);
+                    break;
                 case messages_1.MESSAGE_TYPES.MOVE:
                     (0, game_1.move)(userId, params);
                     break;
@@ -73,6 +76,9 @@ webSocketServer.on("connection", (socket) => {
                     break;
                 case messages_1.MESSAGE_TYPES.LEAVE_GAME:
                     (0, game_1.leaveGame)(userId);
+                    break;
+                case messages_1.MESSAGE_TYPES.EDIT_CARD_NOTES:
+                    (0, game_1.editCardNotes)(userId, params);
                     break;
                 default:
                     console.warn(`Type: ${type} unknown`);

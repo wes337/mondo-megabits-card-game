@@ -4,9 +4,11 @@ export const MESSAGE_TYPES = {
   JOIN: "join",
   LEAVE: "leave",
   CHAT: "chat",
+  MESSAGE: "message",
   STATUS: "status",
   START: "start",
   PLAY: "play",
+  ATTACK: "attack",
   MOVE: "move",
   TAP: "tap",
   TARGET: "target",
@@ -14,6 +16,7 @@ export const MESSAGE_TYPES = {
   LEAVE_GAME: "leave-game",
   GAME: "game",
   PING: "ping",
+  EDIT_CARD_NOTES: "edit-card-notes",
 } as const;
 
 type Keys = keyof typeof MESSAGE_TYPES;

@@ -1,14 +1,37 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.start = exports.createAndStartGame = exports.createGame = exports.startGame = exports.leaveGame = exports.play = exports.tap = exports.target = exports.move = exports.endTurn = exports.getGameAndRoomUserIsIn = exports.updateGame = void 0;
+exports.editCardNotes = exports.start = exports.createAndStartGame = exports.createGame = exports.startGame = exports.leaveGame = exports.attack = exports.play = exports.tap = exports.target = exports.move = exports.endTurn = exports.getGameAndRoomUserIsIn = exports.updateGame = void 0;
 const card_1 = require("../utils/card");
 const room_1 = require("./room");
 const lobby_1 = require("../ws/lobby");
 const room_2 = require("../ws/room");
-const Game_1 = __importDefault(require("../classes/Game"));
+const Game_1 = __importStar(require("../classes/Game"));
 const PuppetMaster_1 = __importDefault(require("../classes/PuppetMaster"));
 const user_1 = require("../types/user");
 const messages_1 = require("../types/messages");
@@ -53,6 +76,7 @@ const endTurn = (userId) => {
 };
 exports.endTurn = endTurn;
 const move = (userId, params) => {
+    var _a;
     const { room, game } = (0, exports.getGameAndRoomUserIsIn)(userId);
     if (!room || !game) {
         return;
@@ -63,9 +87,13 @@ const move = (userId, params) => {
     if (!puppetMaster || !userIsInRoom) {
         return;
     }
-    const canMoveCard = game.isPlayersTurn(userId);
+    const canMoveCard = game.isPlayersTurn(userId) || destination === Game_1.GAME_ZONE.DISCARD_PILE;
     if (!canMoveCard) {
         return;
+    }
+    if (((_a = game.location) === null || _a === void 0 ? void 0 : _a.uuid) === cardUuid &&
+        destination === Game_1.GAME_ZONE.DISCARD_PILE) {
+        game.location = undefined;
     }
     puppetMaster.moveCard(cardUuid, destination);
     game.addLog({
@@ -103,7 +131,7 @@ const tap = (userId, params) => {
     if (!puppetMaster || !userIsInRoom) {
         return;
     }
-    puppetMaster.tapCard(cardUuid);
+    puppetMaster.tapOrUntapCard(cardUuid);
     (0, exports.updateGame)(game);
 };
 exports.tap = tap;
@@ -121,6 +149,20 @@ const play = (userId, params) => {
     (0, exports.updateGame)(game);
 };
 exports.play = play;
+const attack = (userId, params) => {
+    const { room, game } = (0, exports.getGameAndRoomUserIsIn)(userId);
+    if (!room || !game) {
+        return;
+    }
+    const userIsInRoom = room.users[userId];
+    if (!userIsInRoom) {
+        return;
+    }
+    const { attackerUuid, defenderUuid } = params;
+    game.attack(userId, attackerUuid, defenderUuid);
+    (0, exports.updateGame)(game);
+};
+exports.attack = attack;
 const leaveGame = (userId) => {
     const { room, game } = (0, exports.getGameAndRoomUserIsIn)(userId);
     if (!room || !game) {
@@ -193,4 +235,27 @@ const start = (userId) => {
     }
 };
 exports.start = start;
+const editCardNotes = (userId, params) => {
+    const { room, game } = (0, exports.getGameAndRoomUserIsIn)(userId);
+    if (!room || !game) {
+        return;
+    }
+    const userIsInRoom = room.users[userId];
+    if (!userIsInRoom) {
+        return;
+    }
+    const { cardUuid, notes } = params;
+    const card = game.findCard(cardUuid);
+    if (!card) {
+        return;
+    }
+    card.notes = notes;
+    game.addLog({
+        event: "edit-card-notes",
+        sourceUserId: userId,
+        card: cardUuid,
+    });
+    (0, exports.updateGame)(game);
+};
+exports.editCardNotes = editCardNotes;
 //# sourceMappingURL=game.js.map

@@ -11,12 +11,14 @@ import {
 import { joinLobby, leaveLobby } from "./functions/lobby";
 import {
   play,
+  attack,
   move,
   tap,
   target,
   start,
   endTurn,
   leaveGame,
+  editCardNotes,
 } from "./functions/game";
 import { sendChatMessage } from "./functions/chat";
 import { MESSAGE_TYPES, WebSocketMessage } from "./types/messages";
@@ -74,6 +76,9 @@ webSocketServer.on("connection", (socket) => {
         case MESSAGE_TYPES.PLAY:
           play(userId, params);
           break;
+        case MESSAGE_TYPES.ATTACK:
+          attack(userId, params);
+          break;
         case MESSAGE_TYPES.MOVE:
           move(userId, params);
           break;
@@ -88,6 +93,9 @@ webSocketServer.on("connection", (socket) => {
           break;
         case MESSAGE_TYPES.LEAVE_GAME:
           leaveGame(userId);
+          break;
+        case MESSAGE_TYPES.EDIT_CARD_NOTES:
+          editCardNotes(userId, params);
           break;
         default:
           console.warn(`Type: ${type} unknown`);

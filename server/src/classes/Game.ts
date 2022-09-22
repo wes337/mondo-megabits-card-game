@@ -1,11 +1,12 @@
 import PuppetMaster from "./PuppetMaster";
-import { Card, Challenge, Location } from "./cards";
+import { Card, Challenge, Creature, Location } from "./cards";
 import {
   CARDS_DRAWN_PER_TURN,
   FUNDING_GAINED_PER_TURN,
   INITIAL_HAND_SIZE,
   MAX_FUNDING,
 } from "./constants";
+import { CARD_TYPE } from "./cards/Card";
 
 export const GAME_ZONE = {
   LOOK_HAND: "look-hand",
@@ -63,6 +64,20 @@ class Game {
     });
   }
 
+  findCard(cardUuid): Card | null {
+    let card;
+
+    this.puppetMasters.forEach((puppetMaster) => {
+      const cardAndLocation = puppetMaster.findCardByUuid(cardUuid);
+      if (cardAndLocation) {
+        card = cardAndLocation.card;
+        return card;
+      }
+    });
+
+    return card;
+  }
+
   nextTurn(): void {
     const number = this.turn.number + 1;
     this.turn = {
@@ -103,6 +118,7 @@ class Game {
     const nextPuppetMaster = this.getPlayer(this.turn.player);
     if (nextPuppetMaster) {
       nextPuppetMaster.drawCards(CARDS_DRAWN_PER_TURN);
+      nextPuppetMaster.untapAllCards();
     }
   }
 
@@ -146,14 +162,15 @@ class Game {
   }
 
   play(userId: string, cardUuid: string, destination: GameZone) {
-    // Check if user is allowed to play this card
-    const isAllowedToPlayCard = this.isPlayersTurn(userId);
-    if (!isAllowedToPlayCard) {
+    const puppetMaster = this.getPlayer(userId);
+    if (!puppetMaster) {
       return;
     }
 
-    const puppetMaster = this.getPlayer(userId);
-    if (!puppetMaster) {
+    // Check if user is allowed to play this card
+    const isAllowedToPlayCard = this.isPlayersTurn(userId);
+    if (!isAllowedToPlayCard) {
+      puppetMaster.sendMessage("You can only play this card during your turn.");
       return;
     }
 
@@ -179,6 +196,80 @@ class Game {
       event: "play-card",
       sourceUserId: puppetMaster.id,
       card: cardUuid,
+    });
+  }
+
+  attack(userId: string, attackerUuid: string, defenderUuid: string) {
+    const puppetMaster = this.getPlayer(userId);
+    const defendingPuppetMaster = this.puppetMasters.find(
+      ({ id }) => id !== userId
+    );
+    if (!puppetMaster || !defendingPuppetMaster) {
+      return;
+    }
+
+    // Check if user is allowed to play this card
+    const isAllowedToPlayCard = this.isPlayersTurn(userId);
+    if (!isAllowedToPlayCard) {
+      return;
+    }
+
+    const attackingCardAndLocation = puppetMaster.findCardByUuid(attackerUuid);
+    const defendingCardAndLocation =
+      defendingPuppetMaster.findCardByUuid(defenderUuid);
+
+    if (!attackingCardAndLocation || !defendingCardAndLocation) {
+      return;
+    }
+
+    const attacker = attackingCardAndLocation.card as Creature;
+    const attackerLocation = attackingCardAndLocation.location;
+
+    if (
+      attackerLocation !== GAME_ZONE.ACTIVE_ZONE &&
+      attackerLocation !== GAME_ZONE.THE_THINK_TANK
+    ) {
+      return;
+    }
+
+    const defender = defendingCardAndLocation.card as Creature;
+    const defenderLocation = defendingCardAndLocation.location;
+
+    if (!attacker.canAttack()) {
+      puppetMaster.sendMessage(
+        "This creature cannot attack anymore this turn."
+      );
+      return;
+    }
+
+    const defendingPlayerHasCreaturesInActiveZone =
+      defendingPuppetMaster.activeZone &&
+      defendingPuppetMaster.activeZone.filter(
+        (card) => card.type === CARD_TYPE.CREATURE
+      ).length > 0;
+
+    if (
+      defenderLocation === GAME_ZONE.THE_THINK_TANK &&
+      defendingPlayerHasCreaturesInActiveZone
+    ) {
+      puppetMaster.sendMessage(
+        "You cannot attack the Figurehead while there are still creatures in the defending player's active zone."
+      );
+      return;
+    }
+
+    const damage = attacker.attackDamage;
+    defender.stats.HP -= damage;
+    attacker.attacks++;
+
+    if (defender.stats.HP <= 0) {
+      defendingPuppetMaster.moveCard(defenderUuid, GAME_ZONE.DISCARD_PILE);
+    }
+
+    this.addLog({
+      event: "attack-card",
+      sourceUserId: puppetMaster.id,
+      targetUserId: defendingPuppetMaster.id,
     });
   }
 }

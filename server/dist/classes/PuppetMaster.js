@@ -1,11 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const game_1 = require("../ws/game");
 const card_1 = require("../functions/card");
 const string_1 = require("../utils/string");
 const cards_1 = require("./cards");
 const Card_1 = require("./cards/Card");
 const constants_1 = require("./constants");
 const Game_1 = require("./Game");
+const Creature_1 = require("./cards/Creature");
 class PuppetMaster {
     constructor(userId) {
         this.id = userId;
@@ -18,6 +20,9 @@ class PuppetMaster {
         this.theThinkTank = undefined;
         this.activeZone = [];
         this.location = undefined;
+    }
+    sendMessage(message) {
+        (0, game_1.messagePlayer)(this.id, message);
     }
     getCardCount(key = "id") {
         const cardCounts = this.deck.reduce((counts, card) => {
@@ -51,7 +56,7 @@ class PuppetMaster {
         }
         this.lookHand.push(...cards);
     }
-    tapCard(cardUuid) {
+    tapOrUntapCard(cardUuid) {
         const cardAndLocation = this.findCardByUuid(cardUuid);
         if (!cardAndLocation) {
             return false;
@@ -64,6 +69,14 @@ class PuppetMaster {
         }
         card.tapped = !card.tapped;
         return true;
+    }
+    untapAllCards() {
+        [...this.activeZone, this.theThinkTank].forEach((card) => {
+            if (!card) {
+                return;
+            }
+            card.tapped = false;
+        });
     }
     moveCard(cardUuid, destination) {
         const cardAndLocation = this.findCardByUuid(cardUuid);
@@ -109,10 +122,17 @@ class PuppetMaster {
             : card.cost;
         const cantAfford = this.funding - cost < 0;
         if (cantAfford) {
+            this.sendMessage("You don't have enough funding to play this card.");
             return false;
         }
         if (destination === Game_1.GAME_ZONE.LOCATION &&
             card.type !== Card_1.CARD_TYPE.LOCATION) {
+            this.sendMessage("You can only play Location cards here.");
+            return false;
+        }
+        if (destination === Game_1.GAME_ZONE.THE_THINK_TANK &&
+            card.subtype !== Creature_1.CREATURE_SUBTYPE.FIGUREHEAD) {
+            this.sendMessage("You can only play Figurehead Creatures here.");
             return false;
         }
         this.funding = this.funding - cost;
