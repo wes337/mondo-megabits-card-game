@@ -5,6 +5,7 @@ export const ROOM_STATUS = {
   OPEN: "open",
   FULL: "full",
   IN_PROGRESS: "in-progress",
+  TUTORIAL: "tutorial",
 } as const;
 
 type Keys = keyof typeof ROOM_STATUS;

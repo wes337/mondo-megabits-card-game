@@ -6,10 +6,14 @@
 .circle-button {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   white-space: nowrap;
   gap: 0.5rem;
   font-size: 1.6rem;
+
+  .label {
+    margin: auto;
+  }
 
   .circle {
     @include textColorAndShadow($colorYellow);
@@ -30,6 +34,12 @@
     }
   }
 
+  &.pink {
+    .circle {
+      @include textColorAndShadow($colorPink);
+    }
+  }
+
   &.small {
     font-size: 1rem;
     padding: 0.5rem;
@@ -46,6 +56,11 @@
   &.disabled,
   &:disabled,
   &[disabled] {
+    cursor: default;
+
+    .circle {
+      @include textColorAndShadow($colorLightGray);
+    }
     &:hover {
       .circle {
         &:before {

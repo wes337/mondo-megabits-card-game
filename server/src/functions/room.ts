@@ -6,6 +6,7 @@ import { getLobby, getRooms } from "../data";
 import { messageRoom, messageRoomAsSystem } from "../ws/room";
 import { MESSAGE_TYPES } from "../types/messages";
 import { ROOM_STATUS } from "../types/room";
+import { start } from "./game";
 
 export const getRoomsInfo = () => {
   const rooms = getRooms();
@@ -99,13 +100,16 @@ export const getUsersInRoom = (roomCode) => {
 };
 
 export const getRoomStatus = (room) => {
+  if (room.status === ROOM_STATUS.TUTORIAL) {
+    return ROOM_STATUS.TUTORIAL;
+  }
   return Object.keys(room.users).length < MAX_CLIENTS
     ? ROOM_STATUS.OPEN
     : ROOM_STATUS.FULL;
 };
 
 export const joinRoom = (userId, params) => {
-  const { roomCode } = params;
+  const { roomCode, tutorial } = params;
   const room = getRoomByCode(roomCode);
 
   if (!room) {
@@ -129,7 +133,7 @@ export const joinRoom = (userId, params) => {
     id: userId,
     socket,
     name: lobby[userId].name,
-    status: USER_STATUS.WAITING,
+    status: params.tutorial ? USER_STATUS.READY : USER_STATUS.WAITING,
   } as User;
 
   room.users = {
@@ -144,9 +148,13 @@ export const joinRoom = (userId, params) => {
 
   messageRoom(roomCode, {
     type: MESSAGE_TYPES.JOIN,
-    params: { roomCode, users },
+    params: { roomCode, users, status: room.status },
   });
   messageRoomAsSystem(roomCode, `${user.name} joined the room`);
+
+  if (tutorial) {
+    start(userId);
+  }
 };
 
 export const createRoom = (userId, params) => {
@@ -162,7 +170,7 @@ export const createRoom = (userId, params) => {
 
   rooms[roomCode] = {
     users: {},
-    status: ROOM_STATUS.OPEN,
+    status: params?.tutorial ? ROOM_STATUS.TUTORIAL : ROOM_STATUS.OPEN,
     code: roomCode,
   };
 

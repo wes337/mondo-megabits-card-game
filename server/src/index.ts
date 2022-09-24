@@ -19,6 +19,14 @@ import {
   endTurn,
   leaveGame,
   editCardNotes,
+  drawCards,
+  shuffleDeck,
+  moveCard,
+  tapCard,
+  flipCard,
+  setNarrative,
+  setFunding,
+  untapAllCards,
 } from "./functions/game";
 import { sendChatMessage } from "./functions/chat";
 import { MESSAGE_TYPES, WebSocketMessage } from "./types/messages";
@@ -73,6 +81,9 @@ webSocketServer.on("connection", (socket) => {
         case MESSAGE_TYPES.START:
           start(userId);
           break;
+        case MESSAGE_TYPES.DRAW_CARDS:
+          drawCards(userId, params);
+          break;
         case MESSAGE_TYPES.PLAY:
           play(userId, params);
           break;
@@ -85,8 +96,20 @@ webSocketServer.on("connection", (socket) => {
         case MESSAGE_TYPES.TAP:
           tap(userId, params);
           break;
+
         case MESSAGE_TYPES.TARGET:
           target(userId, params);
+          break;
+
+        // Sandbox stuff
+        case MESSAGE_TYPES.MOVE_CARD:
+          moveCard(userId, params);
+          break;
+        case MESSAGE_TYPES.TAP_CARD:
+          tapCard(userId, params);
+          break;
+        case MESSAGE_TYPES.FLIP_CARD:
+          flipCard(userId, params);
           break;
         case MESSAGE_TYPES.END_TURN:
           endTurn(userId);
@@ -96,6 +119,18 @@ webSocketServer.on("connection", (socket) => {
           break;
         case MESSAGE_TYPES.EDIT_CARD_NOTES:
           editCardNotes(userId, params);
+          break;
+        case MESSAGE_TYPES.SHUFFLE_DECK:
+          shuffleDeck(userId);
+          break;
+        case MESSAGE_TYPES.SET_NARRATIVE:
+          setNarrative(userId, params);
+          break;
+        case MESSAGE_TYPES.SET_FUNDING:
+          setFunding(userId, params);
+          break;
+        case MESSAGE_TYPES.UNTAP_ALL_CARDS:
+          untapAllCards(userId);
           break;
         default:
           console.warn(`Type: ${type} unknown`);

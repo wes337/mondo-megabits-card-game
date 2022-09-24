@@ -8,6 +8,7 @@ import { USER_STATUS } from "../types/user";
 import { MESSAGE_TYPES } from "../types/messages";
 import { ROOM_STATUS } from "../types/room";
 import { getGames } from "../data";
+import SandboxGame from "../classes/SandboxGame";
 
 export const updateGame = (game) => {
   const games = getGames();
@@ -36,22 +37,12 @@ export const endTurn = (userId) => {
     return;
   }
 
-  // Check if it is users turn
-  const canEndTurn = game.isPlayersTurn(userId);
-  if (!canEndTurn) {
-    return;
-  }
-
-  game.endTurn();
+  game.nextTurn();
 
   // Clear all targeting after each turn
   messageRoom(room.code, {
     type: MESSAGE_TYPES.TARGET,
     params: { target: { from: null, to: null } },
-  });
-
-  game.addLog({
-    event: "end-turn",
   });
 
   updateGame(game);
@@ -74,7 +65,8 @@ export const move = (userId, params) => {
 
   // Check if user can move card
   const canMoveCard =
-    game.isPlayersTurn(userId) || destination === GAME_ZONE.DISCARD_PILE;
+    (game as Game).isPlayersTurn(userId) ||
+    destination === GAME_ZONE.DISCARD_PILE;
   if (!canMoveCard) {
     return;
   }
@@ -148,7 +140,7 @@ export const play = (userId, params) => {
 
   const { cardUuid, destination } = params;
 
-  game.play(userId, cardUuid, destination);
+  (game as Game).play(userId, cardUuid, destination);
   updateGame(game);
 };
 
@@ -166,7 +158,7 @@ export const attack = (userId, params) => {
 
   const { attackerUuid, defenderUuid } = params;
 
-  game.attack(userId, attackerUuid, defenderUuid);
+  (game as Game).attack(userId, attackerUuid, defenderUuid);
   updateGame(game);
 };
 
@@ -231,7 +223,7 @@ export const createGame = (userId) => {
     return puppetMaster;
   });
 
-  const game = new Game(gameId, [...puppetMasters]);
+  const game = new SandboxGame(gameId, [...puppetMasters]);
 
   return game;
 };
@@ -262,7 +254,10 @@ export const start = (userId) => {
   const userIsHost = userId === Object.keys(room.users)[0];
   if (userIsHost) {
     createAndStartGame(userId);
-    room.status = ROOM_STATUS.IN_PROGRESS;
+    room.status =
+      room.status === ROOM_STATUS.TUTORIAL
+        ? ROOM_STATUS.TUTORIAL
+        : ROOM_STATUS.IN_PROGRESS;
     sendLobbyInfo();
   }
 };
@@ -281,7 +276,7 @@ export const editCardNotes = (userId, params) => {
 
   const { cardUuid, notes } = params;
 
-  const card = game.findCard(cardUuid);
+  const card = (game as Game).findCard(cardUuid);
   if (!card) {
     return;
   }
@@ -292,5 +287,121 @@ export const editCardNotes = (userId, params) => {
     sourceUserId: userId,
     card: cardUuid,
   });
+  updateGame(game);
+};
+
+// Sandbox stuff
+
+const getGame = (userId: string): SandboxGame | null => {
+  const { room, game } = getGameAndRoomUserIsIn(userId);
+
+  if (!room || !game) {
+    return null;
+  }
+
+  const userIsInRoom = room.users[userId];
+  if (!userIsInRoom) {
+    return null;
+  }
+
+  return game as SandboxGame;
+};
+
+export const drawCards = (userId, params) => {
+  const game = getGame(userId);
+
+  if (!game) {
+    return;
+  }
+
+  const { amount } = params;
+
+  (game as SandboxGame).drawCards(userId, amount);
+  updateGame(game);
+};
+
+export const moveCard = (userId, params) => {
+  const game = getGame(userId);
+
+  if (!game) {
+    return;
+  }
+
+  const { cardUuid, destination } = params;
+
+  (game as SandboxGame).moveCard(userId, cardUuid, destination);
+  updateGame(game);
+};
+
+export const tapCard = (userId, params) => {
+  const game = getGame(userId);
+
+  if (!game) {
+    return;
+  }
+  const { cardUuid } = params;
+
+  (game as SandboxGame).tapCard(userId, cardUuid);
+  updateGame(game);
+};
+
+export const flipCard = (userId, params) => {
+  const game = getGame(userId);
+
+  if (!game) {
+    return;
+  }
+
+  const { cardUuid } = params;
+
+  (game as SandboxGame).flipCard(userId, cardUuid);
+  updateGame(game);
+};
+
+export const shuffleDeck = (userId) => {
+  const game = getGame(userId);
+
+  if (!game) {
+    return;
+  }
+
+  (game as SandboxGame).shuffleDeck(userId);
+  updateGame(game);
+};
+
+export const setNarrative = (userId, params) => {
+  const game = getGame(userId);
+
+  if (!game) {
+    return;
+  }
+
+  const { targetUserId, narrative } = params;
+
+  (game as SandboxGame).setNarrative(userId, targetUserId, narrative);
+  updateGame(game);
+};
+
+export const setFunding = (userId, params) => {
+  const game = getGame(userId);
+
+  if (!game) {
+    return;
+  }
+
+  const { targetUserId, funding } = params;
+
+  (game as SandboxGame).setFunding(userId, targetUserId, funding);
+  updateGame(game);
+};
+
+export const untapAllCards = (userId) => {
+  const game = getGame(userId);
+
+  if (!game) {
+    return;
+  }
+
+  (game as SandboxGame).untapAllCards(userId);
   updateGame(game);
 };

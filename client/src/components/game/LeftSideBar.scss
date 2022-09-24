@@ -10,6 +10,13 @@
   flex-direction: column;
   justify-content: space-between;
 
+  legend {
+    max-width: 100px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
   .stats {
     display: flex;
     flex-direction: column;
@@ -24,7 +31,7 @@
     .stat-number {
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
       margin-top: 0.25rem;
       padding: 0.5rem;
       font-size: 1.4rem;
@@ -32,6 +39,26 @@
       background-color: $colorBlack;
       color: $colorWhite;
       outline: 4px inset $colorGray;
+
+      -webkit-text-stroke: 2px rgba($colorBlack, 0.25);
+      text-shadow: 2px 2px rgba($colorBlack, 0.75),
+        -2px -2px rgba($colorBlack, 0.75);
+    }
+
+    .stat-button {
+      cursor: pointer;
+      background: none;
+      border: 0;
+      font-size: 1.4rem;
+      color: $colorGreen;
+
+      &:hover {
+        background-color: rgba($colorGreen, 0.25);
+      }
+
+      &:active {
+        background-color: rgba($colorGreen, 0.5);
+      }
     }
   }
 
@@ -48,6 +75,7 @@
     align-items: center;
     padding: 0.5rem;
     margin: 0 0.5rem;
+    white-space: nowrap;
 
     .turn-number {
       display: flex;
@@ -57,7 +85,9 @@
       font-family: $headerFont;
       color: $colorWhite;
       margin: 0.5rem;
-      text-shadow: 2px 1px 1px $colorBlack;
+      -webkit-text-stroke: 2px rgba($colorBlack, 0.25);
+      text-shadow: 2px 2px rgba($colorBlack, 0.75),
+        -2px -2px rgba($colorBlack, 0.75);
     }
 
     .end-turn-button {

@@ -56,6 +56,9 @@ webSocketServer.on("connection", (socket) => {
                 case messages_1.MESSAGE_TYPES.START:
                     (0, game_1.start)(userId);
                     break;
+                case messages_1.MESSAGE_TYPES.DRAW_CARDS:
+                    (0, game_1.drawCards)(userId, params);
+                    break;
                 case messages_1.MESSAGE_TYPES.PLAY:
                     (0, game_1.play)(userId, params);
                     break;
@@ -71,6 +74,15 @@ webSocketServer.on("connection", (socket) => {
                 case messages_1.MESSAGE_TYPES.TARGET:
                     (0, game_1.target)(userId, params);
                     break;
+                case messages_1.MESSAGE_TYPES.MOVE_CARD:
+                    (0, game_1.moveCard)(userId, params);
+                    break;
+                case messages_1.MESSAGE_TYPES.TAP_CARD:
+                    (0, game_1.tapCard)(userId, params);
+                    break;
+                case messages_1.MESSAGE_TYPES.FLIP_CARD:
+                    (0, game_1.flipCard)(userId, params);
+                    break;
                 case messages_1.MESSAGE_TYPES.END_TURN:
                     (0, game_1.endTurn)(userId);
                     break;
@@ -79,6 +91,18 @@ webSocketServer.on("connection", (socket) => {
                     break;
                 case messages_1.MESSAGE_TYPES.EDIT_CARD_NOTES:
                     (0, game_1.editCardNotes)(userId, params);
+                    break;
+                case messages_1.MESSAGE_TYPES.SHUFFLE_DECK:
+                    (0, game_1.shuffleDeck)(userId);
+                    break;
+                case messages_1.MESSAGE_TYPES.SET_NARRATIVE:
+                    (0, game_1.setNarrative)(userId, params);
+                    break;
+                case messages_1.MESSAGE_TYPES.SET_FUNDING:
+                    (0, game_1.setFunding)(userId, params);
+                    break;
+                case messages_1.MESSAGE_TYPES.UNTAP_ALL_CARDS:
+                    (0, game_1.untapAllCards)(userId);
                     break;
                 default:
                     console.warn(`Type: ${type} unknown`);

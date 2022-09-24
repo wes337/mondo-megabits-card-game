@@ -17,6 +17,16 @@ export const MESSAGE_TYPES = {
   GAME: "game",
   PING: "ping",
   EDIT_CARD_NOTES: "edit-card-notes",
+  // Sandbox game stuff
+  START_TUTORIAL: "start-tutorial",
+  DRAW_CARDS: "draw-cards",
+  SHUFFLE_DECK: "shuffle-deck",
+  MOVE_CARD: "move-card",
+  TAP_CARD: "tap-card",
+  FLIP_CARD: "flip-card",
+  SET_FUNDING: "set-funding",
+  SET_NARRATIVE: "set-narrative",
+  UNTAP_ALL_CARDS: "untap-all-cards",
 } as const;
 
 type Keys = keyof typeof MESSAGE_TYPES;

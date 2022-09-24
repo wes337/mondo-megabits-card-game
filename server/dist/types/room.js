@@ -5,5 +5,6 @@ exports.ROOM_STATUS = {
     OPEN: "open",
     FULL: "full",
     IN_PROGRESS: "in-progress",
+    TUTORIAL: "tutorial",
 };
 //# sourceMappingURL=room.js.map

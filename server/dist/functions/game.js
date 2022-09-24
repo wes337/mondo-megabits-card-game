@@ -1,42 +1,20 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.editCardNotes = exports.start = exports.createAndStartGame = exports.createGame = exports.startGame = exports.leaveGame = exports.attack = exports.play = exports.tap = exports.target = exports.move = exports.endTurn = exports.getGameAndRoomUserIsIn = exports.updateGame = void 0;
+exports.untapAllCards = exports.setFunding = exports.setNarrative = exports.shuffleDeck = exports.flipCard = exports.tapCard = exports.moveCard = exports.drawCards = exports.editCardNotes = exports.start = exports.createAndStartGame = exports.createGame = exports.startGame = exports.leaveGame = exports.attack = exports.play = exports.tap = exports.target = exports.move = exports.endTurn = exports.getGameAndRoomUserIsIn = exports.updateGame = void 0;
 const card_1 = require("../utils/card");
 const room_1 = require("./room");
 const lobby_1 = require("../ws/lobby");
 const room_2 = require("../ws/room");
-const Game_1 = __importStar(require("../classes/Game"));
+const Game_1 = require("../classes/Game");
 const PuppetMaster_1 = __importDefault(require("../classes/PuppetMaster"));
 const user_1 = require("../types/user");
 const messages_1 = require("../types/messages");
 const room_3 = require("../types/room");
 const data_1 = require("../data");
+const SandboxGame_1 = __importDefault(require("../classes/SandboxGame"));
 const updateGame = (game) => {
     const games = (0, data_1.getGames)();
     games[game.id] = game;
@@ -60,17 +38,10 @@ const endTurn = (userId) => {
     if (!puppetMaster || !userIsInRoom) {
         return;
     }
-    const canEndTurn = game.isPlayersTurn(userId);
-    if (!canEndTurn) {
-        return;
-    }
-    game.endTurn();
+    game.nextTurn();
     (0, room_2.messageRoom)(room.code, {
         type: messages_1.MESSAGE_TYPES.TARGET,
         params: { target: { from: null, to: null } },
-    });
-    game.addLog({
-        event: "end-turn",
     });
     (0, exports.updateGame)(game);
 };
@@ -87,7 +58,8 @@ const move = (userId, params) => {
     if (!puppetMaster || !userIsInRoom) {
         return;
     }
-    const canMoveCard = game.isPlayersTurn(userId) || destination === Game_1.GAME_ZONE.DISCARD_PILE;
+    const canMoveCard = game.isPlayersTurn(userId) ||
+        destination === Game_1.GAME_ZONE.DISCARD_PILE;
     if (!canMoveCard) {
         return;
     }
@@ -208,7 +180,7 @@ const createGame = (userId) => {
         puppetMaster.setDeck(deck);
         return puppetMaster;
     });
-    const game = new Game_1.default(gameId, [...puppetMasters]);
+    const game = new SandboxGame_1.default(gameId, [...puppetMasters]);
     return game;
 };
 exports.createGame = createGame;
@@ -230,7 +202,10 @@ const start = (userId) => {
     const userIsHost = userId === Object.keys(room.users)[0];
     if (userIsHost) {
         (0, exports.createAndStartGame)(userId);
-        room.status = room_3.ROOM_STATUS.IN_PROGRESS;
+        room.status =
+            room.status === room_3.ROOM_STATUS.TUTORIAL
+                ? room_3.ROOM_STATUS.TUTORIAL
+                : room_3.ROOM_STATUS.IN_PROGRESS;
         (0, lobby_1.sendLobbyInfo)();
     }
 };
@@ -258,4 +233,93 @@ const editCardNotes = (userId, params) => {
     (0, exports.updateGame)(game);
 };
 exports.editCardNotes = editCardNotes;
+const getGame = (userId) => {
+    const { room, game } = (0, exports.getGameAndRoomUserIsIn)(userId);
+    if (!room || !game) {
+        return null;
+    }
+    const userIsInRoom = room.users[userId];
+    if (!userIsInRoom) {
+        return null;
+    }
+    return game;
+};
+const drawCards = (userId, params) => {
+    const game = getGame(userId);
+    if (!game) {
+        return;
+    }
+    const { amount } = params;
+    game.drawCards(userId, amount);
+    (0, exports.updateGame)(game);
+};
+exports.drawCards = drawCards;
+const moveCard = (userId, params) => {
+    const game = getGame(userId);
+    if (!game) {
+        return;
+    }
+    const { cardUuid, destination } = params;
+    game.moveCard(userId, cardUuid, destination);
+    (0, exports.updateGame)(game);
+};
+exports.moveCard = moveCard;
+const tapCard = (userId, params) => {
+    const game = getGame(userId);
+    if (!game) {
+        return;
+    }
+    const { cardUuid } = params;
+    game.tapCard(userId, cardUuid);
+    (0, exports.updateGame)(game);
+};
+exports.tapCard = tapCard;
+const flipCard = (userId, params) => {
+    const game = getGame(userId);
+    if (!game) {
+        return;
+    }
+    const { cardUuid } = params;
+    game.flipCard(userId, cardUuid);
+    (0, exports.updateGame)(game);
+};
+exports.flipCard = flipCard;
+const shuffleDeck = (userId) => {
+    const game = getGame(userId);
+    if (!game) {
+        return;
+    }
+    game.shuffleDeck(userId);
+    (0, exports.updateGame)(game);
+};
+exports.shuffleDeck = shuffleDeck;
+const setNarrative = (userId, params) => {
+    const game = getGame(userId);
+    if (!game) {
+        return;
+    }
+    const { targetUserId, narrative } = params;
+    game.setNarrative(userId, targetUserId, narrative);
+    (0, exports.updateGame)(game);
+};
+exports.setNarrative = setNarrative;
+const setFunding = (userId, params) => {
+    const game = getGame(userId);
+    if (!game) {
+        return;
+    }
+    const { targetUserId, funding } = params;
+    game.setFunding(userId, targetUserId, funding);
+    (0, exports.updateGame)(game);
+};
+exports.setFunding = setFunding;
+const untapAllCards = (userId) => {
+    const game = getGame(userId);
+    if (!game) {
+        return;
+    }
+    game.untapAllCards(userId);
+    (0, exports.updateGame)(game);
+};
+exports.untapAllCards = untapAllCards;
 //# sourceMappingURL=game.js.map

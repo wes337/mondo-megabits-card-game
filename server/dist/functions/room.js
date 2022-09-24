@@ -9,6 +9,7 @@ const data_1 = require("../data");
 const room_1 = require("../ws/room");
 const messages_1 = require("../types/messages");
 const room_2 = require("../types/room");
+const game_1 = require("./game");
 const getRoomsInfo = () => {
     const rooms = (0, data_1.getRooms)();
     return Object.keys(rooms).map((roomCode) => {
@@ -83,13 +84,16 @@ const getUsersInRoom = (roomCode) => {
 };
 exports.getUsersInRoom = getUsersInRoom;
 const getRoomStatus = (room) => {
+    if (room.status === room_2.ROOM_STATUS.TUTORIAL) {
+        return room_2.ROOM_STATUS.TUTORIAL;
+    }
     return Object.keys(room.users).length < constants_1.MAX_CLIENTS
         ? room_2.ROOM_STATUS.OPEN
         : room_2.ROOM_STATUS.FULL;
 };
 exports.getRoomStatus = getRoomStatus;
 const joinRoom = (userId, params) => {
-    const { roomCode } = params;
+    const { roomCode, tutorial } = params;
     const room = (0, exports.getRoomByCode)(roomCode);
     if (!room) {
         console.warn(`Room ${roomCode} does not exist!`);
@@ -106,7 +110,7 @@ const joinRoom = (userId, params) => {
         id: userId,
         socket,
         name: lobby[userId].name,
-        status: user_1.USER_STATUS.WAITING,
+        status: params.tutorial ? user_1.USER_STATUS.READY : user_1.USER_STATUS.WAITING,
     };
     room.users = Object.assign(Object.assign({}, room.users), { [userId]: user });
     room.status = (0, exports.getRoomStatus)(room);
@@ -114,9 +118,12 @@ const joinRoom = (userId, params) => {
     const users = (0, exports.getUsersInRoom)(roomCode);
     (0, room_1.messageRoom)(roomCode, {
         type: messages_1.MESSAGE_TYPES.JOIN,
-        params: { roomCode, users },
+        params: { roomCode, users, status: room.status },
     });
     (0, room_1.messageRoomAsSystem)(roomCode, `${user.name} joined the room`);
+    if (tutorial) {
+        (0, game_1.start)(userId);
+    }
 };
 exports.joinRoom = joinRoom;
 const createRoom = (userId, params) => {
@@ -128,7 +135,7 @@ const createRoom = (userId, params) => {
     }
     rooms[roomCode] = {
         users: {},
-        status: room_2.ROOM_STATUS.OPEN,
+        status: (params === null || params === void 0 ? void 0 : params.tutorial) ? room_2.ROOM_STATUS.TUTORIAL : room_2.ROOM_STATUS.OPEN,
         code: roomCode,
     };
     console.log("=== CREATED ROOM ===");
