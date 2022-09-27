@@ -1,6 +1,8 @@
 import MODAL_NAMES from "../../constants/modal";
 import useStore from "../../store";
 import useModal from "../../hooks/useModal";
+import useTutorial from "../../hooks/useTutorial";
+
 import CardFocus from "../card/CardFocus";
 import CircleButton from "../shared/CircleButton";
 import Chat from "../shared/Chat";
@@ -9,6 +11,7 @@ import "./RightSideBar.scss";
 function RightSideBar() {
   const { sendMessage } = useStore();
   const modal = useModal();
+  const tutorial = useTutorial();
 
   const leaveGame = () => {
     modal.open(MODAL_NAMES.CONFIRM, {
@@ -17,6 +20,9 @@ function RightSideBar() {
       confirm: "Leave",
       cancel: "Stay",
       callback: () => {
+        if (tutorial.started()) {
+          tutorial.end();
+        }
         sendMessage({ type: "leave-game" });
       },
     });
