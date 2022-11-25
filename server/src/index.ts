@@ -32,7 +32,7 @@ import { sendChatMessage } from "./functions/chat";
 import { MESSAGE_TYPES, WebSocketMessage } from "./types/messages";
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 8080;
 
 const server = http.createServer(app);
 server.listen(port);

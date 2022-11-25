@@ -395,7 +395,7 @@ function useTutorial() {
     state.game?.puppetMasters?.find(({ id }) => id === state.user.id)
   );
 
-  const startTutorial = () => {
+  const resetTutorial = () => {
     setTutorialStarted(true);
     setTutorialStep(0);
   };
@@ -521,17 +521,13 @@ function useTutorial() {
     if (tutorialStarted() && state.game) {
       handleTutorialStep();
     }
-    if (tutorialStarted() && !state.game) {
-      console.log("ending tut");
-      endTutorial();
-    }
   });
 
   return {
     current: currentStep,
     next: nextStep,
     number: currentStepNumber,
-    start: startTutorial,
+    reset: resetTutorial,
     started: tutorialStarted,
     end: endTutorial,
     handle: handleTutorialStep,

@@ -21,7 +21,7 @@ function Menu() {
   };
 
   const startTutorial = () => {
-    tutorial.start();
+    tutorial.reset();
     sendMessage({
       type: "create",
       params: {
