@@ -35,4 +35,6 @@ export type MessageType = typeof MESSAGE_TYPES[Keys];
 export type WebSocketMessage = {
   type: MessageType;
   params: any;
+  userId?: any;
+  socket?: any;
 };
